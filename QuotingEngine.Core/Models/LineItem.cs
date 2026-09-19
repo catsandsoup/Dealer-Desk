@@ -17,7 +17,9 @@ public class LineItem : INotifyPropertyChanged
     private decimal _grossWeightGrams;
     private decimal _purityPercentage;
     private decimal _liveSpotPricePerGram;
-    private decimal _dealerMarginPercentage;
+    private decimal _dealerMarginValue;
+    private MarginType _marginType = MarginType.Percentage;
+    private int _quantity = 1;
     private string _description = string.Empty;
     private TransactionType _type = TransactionType.Buy;
     private byte[]? _itemPhoto;
@@ -113,12 +115,38 @@ public class LineItem : INotifyPropertyChanged
         }
     }
 
-    public decimal DealerMarginPercentage
+    public MarginType MarginType
     {
-        get => _dealerMarginPercentage;
+        get => _marginType;
         set
         {
-            if (SetProperty(ref _dealerMarginPercentage, value))
+            if (SetProperty(ref _marginType, value))
+            {
+                OnPropertyChanged(nameof(RawFiatValue));
+                OnPropertyChanged(nameof(FinalFiatPrice));
+            }
+        }
+    }
+
+    public int Quantity
+    {
+        get => _quantity;
+        set
+        {
+            if (SetProperty(ref _quantity, value))
+            {
+                OnPropertyChanged(nameof(RawFiatValue));
+                OnPropertyChanged(nameof(FinalFiatPrice));
+            }
+        }
+    }
+
+    public decimal DealerMarginValue
+    {
+        get => _dealerMarginValue;
+        set
+        {
+            if (SetProperty(ref _dealerMarginValue, value))
             {
                 OnPropertyChanged(nameof(RawFiatValue));
                 OnPropertyChanged(nameof(FinalFiatPrice));
@@ -135,8 +163,27 @@ public class LineItem : INotifyPropertyChanged
     {
         get 
         {
-            var baseValue = FineWeightGrams * LiveSpotPricePerGram * (1 + DealerMarginPercentage);
-            return Type == TransactionType.Buy ? baseValue : -baseValue;
+            // Base value is per unit, but if GrossWeightGrams represents the TOTAL weight across all units,
+            // then FineWeightGrams * LiveSpotPricePerGram gives the TOTAL melt value already.
+            // If GrossWeightGrams represents weight PER UNIT, then we must multiply by Quantity.
+            // For standard operation, we will assume GrossWeightGrams is PER UNIT, 
+            // so total base melt = (FineWeightGrams * LiveSpotPricePerGram) * Quantity.
+            decimal totalMeltValue = (FineWeightGrams * LiveSpotPricePerGram) * Quantity;
+            decimal totalMarginAmount = 0;
+            
+            switch (MarginType)
+            {
+                case MarginType.Percentage:
+                    totalMarginAmount = totalMeltValue * DealerMarginValue;
+                    break;
+                case MarginType.FlatDollar:
+                    // Flat dollar margin is applied PER UNIT (Quantity)
+                    totalMarginAmount = DealerMarginValue * Quantity;
+                    break;
+            }
+
+            decimal rawValue = totalMeltValue + totalMarginAmount;
+            return Type == TransactionType.Buy ? rawValue : -rawValue;
         }
     }
 

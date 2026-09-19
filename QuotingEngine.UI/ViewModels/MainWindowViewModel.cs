@@ -202,7 +202,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 Description = catItem.Name,
                 GrossWeightGrams = catItem.GrossWeightGrams,
                 PurityPercentage = catItem.PurityPercentage,
-                DealerMarginPercentage = catItem.DefaultMarginPercentage,
+                MarginType = catItem.MarginType,
+                DealerMarginValue = catItem.DefaultMarginValue,
+                Quantity = 1,
                 LiveSpotPricePerGram = CurrentSpotPrice,
                 Type = TransactionType.Buy
             };
@@ -248,7 +250,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             Description = x.Description,
             GrossWeightGrams = x.GrossWeightGrams,
             PurityPercentage = x.PurityPercentage,
-            DealerMarginPercentage = x.DealerMarginPercentage,
+            MarginType = x.MarginType,
+            DealerMarginValue = x.DealerMarginValue,
+            Quantity = x.Quantity,
             LiveSpotPricePerGram = x.LiveSpotPricePerGram,
             Type = x.Type
         }).ToList();

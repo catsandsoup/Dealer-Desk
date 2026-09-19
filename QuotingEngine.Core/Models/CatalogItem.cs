@@ -8,6 +8,12 @@ public enum CatalogItemType
     Bullion
 }
 
+public enum MarginType
+{
+    Percentage,
+    FlatDollar
+}
+
 public class CatalogItem
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -28,8 +34,13 @@ public class CatalogItem
     public decimal PurityPercentage { get; set; }
     
     /// <summary>
-    /// The default margin to apply when this item is selected.
-    /// e.g. -0.05 (-5%) for scrap, +0.03 (+3%) for sovereign bullion.
+    /// The type of margin calculation to apply.
     /// </summary>
-    public decimal DefaultMarginPercentage { get; set; }
+    public MarginType MarginType { get; set; } = MarginType.Percentage;
+    
+    /// <summary>
+    /// The default margin to apply when this item is selected.
+    /// e.g. -0.05 (-5%) for scrap, or +20 (+$20) for sovereign bullion.
+    /// </summary>
+    public decimal DefaultMarginValue { get; set; }
 }

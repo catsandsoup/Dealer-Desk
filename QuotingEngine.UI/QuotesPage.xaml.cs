@@ -152,8 +152,8 @@ public sealed partial class QuotesPage : Page
 
         // Manager Override check
         bool needsOverride = ViewModel.LineItems.Any(i => 
-            (i.Type == TransactionType.Buy && i.DealerMarginPercentage > 0) || 
-            (i.Type == TransactionType.Sell && i.DealerMarginPercentage < 0));
+            (i.Type == TransactionType.Buy && i.DealerMarginValue > 0) || 
+            (i.Type == TransactionType.Sell && i.DealerMarginValue < 0));
             
         if (needsOverride)
         {

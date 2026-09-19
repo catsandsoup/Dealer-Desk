@@ -7,18 +7,23 @@ namespace QuotingEngine.Infrastructure.Configuration;
 
 public static class ConfigurationManager
 {
-    private static readonly string ConfigPath = Path.Combine(
+    private static string _configPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "DealerDesk",
         "dealer_config.json");
 
+    public static void Initialize(string basePath)
+    {
+        _configPath = Path.Combine(basePath, "dealer_config.json");
+    }
+
     public static DealerConfig Load()
     {
-        if (File.Exists(ConfigPath))
+        if (File.Exists(_configPath))
         {
             try
             {
-                var json = File.ReadAllText(ConfigPath);
+                var json = File.ReadAllText(_configPath);
                 var config = JsonSerializer.Deserialize(json, DealerConfigContext.Default.DealerConfig);
                 if (config != null)
                 {
@@ -36,13 +41,13 @@ public static class ConfigurationManager
 
     public static void Save(DealerConfig config)
     {
-        var dir = Path.GetDirectoryName(ConfigPath);
+        var dir = Path.GetDirectoryName(_configPath);
         if (dir != null && !Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
 
         var json = JsonSerializer.Serialize(config, DealerConfigContext.Default.DealerConfig);
-        File.WriteAllText(ConfigPath, json);
+        File.WriteAllText(_configPath, json);
     }
 }

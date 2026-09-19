@@ -22,6 +22,7 @@ using QuotingEngine.Core.Api;
 using QuotingEngine.Infrastructure.Hardware;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace QuotingEngine_UI;
 
@@ -44,16 +45,25 @@ public partial class App : Application
         Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
+                string baseFolder;
+                try
+                {
+                    baseFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+                }
+                catch
+                {
+                    baseFolder = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "DealerDesk");
+                }
+
+                ConfigurationManager.Initialize(baseFolder);
+                
                 // Core / Infra
                 var config = ConfigurationManager.Load();
                 services.AddSingleton(config);
                 
                 // Initialize DbContext (we'll keep it simple for now as a singleton for the app lifecycle, 
                 // but usually this is Scoped/Transient if we have multi-window concurrency)
-                var dbPath = System.IO.Path.Combine(
-                    System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
-                    "DealerDesk",
-                    "quoting_engine.db");
+                var dbPath = System.IO.Path.Combine(baseFolder, "quoting_engine.db");
                 services.AddSingleton<AppDbContext>(sp => new AppDbContext(dbPath));
                 
                 // Services
@@ -113,7 +123,8 @@ public partial class App : Application
             System.Threading.Tasks.Task.Run(() =>
             {
                 var dbContext = Host?.Services.GetService(typeof(AppDbContext)) as AppDbContext;
-                dbContext?.Database.EnsureCreated();
+                // Migrate will apply all pending migrations and seed data, even if DB already exists
+                dbContext?.Database.Migrate();
             });
 
             var config = Host?.Services.GetService(typeof(DealerConfig)) as DealerConfig;

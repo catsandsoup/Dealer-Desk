@@ -78,12 +78,13 @@
                             </controls:DataGridTemplateColumn.CellEditingTemplate>
                         </controls:DataGridTemplateColumn>
         
-                        <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*"/>
-                        <controls:DataGridTextColumn Header="Gross Wt (g)" Binding="{Binding GrossWeightGrams}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Purity %" Binding="{Binding PurityPercentage}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Description" Binding="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="2*"/>
+                        <controls:DataGridTextColumn Header="Qty" Binding="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
+                        <controls:DataGridTextColumn Header="Gross Wt (g)" Binding="{Binding GrossWeightGrams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Purity %" Binding="{Binding PurityPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                         <controls:DataGridTextColumn Header="Fine Wt (g)" Binding="{Binding FineWeightGrams}" Width="*"/>
                         <controls:DataGridTextColumn Header="Spot / g" Binding="{Binding LiveSpotPricePerGram}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Margin %" Binding="{Binding DealerMarginPercentage}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Margin" Binding="{Binding DealerMarginValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                         <controls:DataGridTextColumn Header="Final Price" Binding="{Binding FinalFiatPrice}" Width="*" IsReadOnly="True"/>
                         <controls:DataGridTemplateColumn Header="Delete" Width="80">
                             <controls:DataGridTemplateColumn.CellTemplate>

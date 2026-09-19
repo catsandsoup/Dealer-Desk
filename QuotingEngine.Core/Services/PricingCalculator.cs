@@ -25,23 +25,15 @@ public class PricingCalculator
             GrossWeightGrams = grossWeightGrams,
             PurityPercentage = purityPercentage,
             LiveSpotPricePerGram = spotPricePerGram,
-            DealerMarginPercentage = marginPercentage
+            MarginType = MarginType.Percentage,
+            DealerMarginValue = marginPercentage
         };
     }
     
     public LineItem CreateBullionItem(string coinName, decimal fineWeightOunces, decimal spotPricePerOunce, decimal premiumDollarAmount)
     {
-        // Convert input spot from oz to gram internally, and calculate premium as a relative percentage of the spot,
-        // or we could adjust LineItem to support flat premiums. The PRD says margin models can be flat dollar spread.
-        // For simplicity with the current model, we convert flat premium to an effective margin %.
-        
         var spotPricePerGram = spotPricePerOunce / GramsPerTroyOunce;
         var grossWeightGrams = ConvertTroyOuncesToGrams(fineWeightOunces);
-        
-        // Effective spot for the whole item
-        var totalSpot = fineWeightOunces * spotPricePerOunce;
-        var targetPrice = totalSpot + premiumDollarAmount;
-        var margin = (targetPrice - totalSpot) / totalSpot;
         
         return new LineItem
         {
@@ -49,7 +41,8 @@ public class PricingCalculator
             GrossWeightGrams = grossWeightGrams,
             PurityPercentage = 1.0m, // fine bullion
             LiveSpotPricePerGram = spotPricePerGram,
-            DealerMarginPercentage = margin
+            MarginType = MarginType.FlatDollar,
+            DealerMarginValue = premiumDollarAmount
         };
     }
 }
