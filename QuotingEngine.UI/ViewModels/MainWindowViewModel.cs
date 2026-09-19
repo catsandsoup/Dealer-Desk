@@ -106,19 +106,22 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         UpdateSettlementTotal();
     }
 
-    private void LoadCatalog()
+    private async void LoadCatalog()
     {
         try
         {
-            var items = _dbContext.CatalogItems.ToList();
-            foreach (var item in items)
+            var items = await System.Threading.Tasks.Task.Run(() => _dbContext.CatalogItems.ToList());
+            _dispatcherQueue.TryEnqueue(() =>
             {
-                CatalogItems.Add(item);
-            }
-            if (CatalogItems.Any())
-            {
-                SelectedCatalogItem = CatalogItems.First();
-            }
+                foreach (var item in items)
+                {
+                    CatalogItems.Add(item);
+                }
+                if (CatalogItems.Any())
+                {
+                    SelectedCatalogItem = CatalogItems.First();
+                }
+            });
         }
         catch (Exception ex)
         {
@@ -249,6 +252,26 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 LineItems.Add(item);
             }
         }
+    }
+
+    [RelayCommand]
+    private void NewOrder()
+    {
+        SaveUndoState();
+        LineItems.Clear();
+        CustomerName = "";
+        IdDocument = "";
+        IdNumber = "";
+        IsSpotFrozen = false;
+        StatusText = "LIVE";
+    }
+
+    [RelayCommand]
+    private void DeleteDraft()
+    {
+        // For a draft, it's essentially the same as NewOrder (clearing the screen).
+        // If we had saved it to DB, we'd delete it from DB here.
+        NewOrder();
     }
 
     private void SaveUndoState()

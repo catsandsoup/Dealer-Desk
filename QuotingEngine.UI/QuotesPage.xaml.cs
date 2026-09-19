@@ -117,6 +117,12 @@ public sealed partial class QuotesPage : Page
         }
     }
 
+    private void F2_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        ViewModel.ToggleSpotFreezeCommand.Execute(null);
+        args.Handled = true;
+    }
+
     // ──────────────────────────────────────────────
     //  Complex Dialog Logic
     // ──────────────────────────────────────────────

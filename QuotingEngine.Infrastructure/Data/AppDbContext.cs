@@ -20,28 +20,71 @@ public class AppDbContext : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Using PostgreSQL for robust decimal precision and multi-user support
-        // Hardcoded for development; should be moved to appsettings.json or secure store in production
-        var connectionString = "Host=localhost;Database=DealerDesk;Username=postgres;Password=postgres";
-        optionsBuilder.UseNpgsql(connectionString);
+        // Using SQLite for local offline POS usage (zero-config, self-contained)
+        var connectionString = $"Data Source={_dbPath}";
+        optionsBuilder.UseSqlite(connectionString);
+    }
+
+    public override int SaveChanges()
+    {
+        EnforceQuoteImmutability();
+        return base.SaveChanges();
+    }
+
+    public override System.Threading.Tasks.Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken = default)
+    {
+        EnforceQuoteImmutability();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void EnforceQuoteImmutability()
+    {
+        var modifiedQuotes = ChangeTracker.Entries<Quote>()
+            .Where(e => e.State == EntityState.Modified);
+
+        foreach (var entry in modifiedQuotes)
+        {
+            var originalStatus = entry.OriginalValues.GetValue<QuoteStatus>(nameof(Quote.Status));
+            
+            // If the quote was already locked or executed, block any further changes.
+            if (originalStatus == QuoteStatus.Locked || originalStatus == QuoteStatus.Settled)
+            {
+                // The only allowed transition is from Locked -> Settled or Cancelled (if you support it)
+                // If they are modifying a Locked quote, they can only change Status to Settled.
+                var newStatus = entry.CurrentValues.GetValue<QuoteStatus>(nameof(Quote.Status));
+                if (originalStatus == QuoteStatus.Locked && newStatus == QuoteStatus.Settled)
+                {
+                    // Allow status change to Settled
+                    // But ensure no other properties were modified!
+                    var modifiedProperties = entry.Properties.Where(p => p.IsModified && p.Metadata.Name != nameof(Quote.Status));
+                    if (modifiedProperties.Any())
+                    {
+                        throw new InvalidOperationException($"Cannot modify properties of a Locked Quote ({entry.Entity.ReferenceId}). Immutable state violation.");
+                    }
+                    continue;
+                }
+
+                throw new InvalidOperationException($"Quote {entry.Entity.ReferenceId} is {originalStatus} and cannot be modified.");
+            }
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // For strict precision as per PRD, storing decimal as exact NUMERIC in Postgres
-        modelBuilder.Entity<LineItem>().Property(p => p.GrossWeightGrams).HasColumnType("numeric(18,6)");
+        // For strict precision as per PRD, storing decimal as exact NUMERIC (which SQLite stores as TEXT preserving precision)
+        modelBuilder.Entity<LineItem>().Property(p => p.GrossWeightGrams).HasColumnType("TEXT");
         modelBuilder.Entity<LineItem>().Ignore(p => p.FineWeightGrams);
-        modelBuilder.Entity<LineItem>().Property(p => p.PurityPercentage).HasColumnType("numeric(18,4)");
-        modelBuilder.Entity<LineItem>().Property(p => p.DealerMarginValue).HasColumnType("numeric(18,4)");
-        modelBuilder.Entity<LineItem>().Property(p => p.StoredSpotPriceG).HasColumnType("numeric(18,2)");
-        modelBuilder.Entity<LineItem>().Property(p => p.DefaultPremiumPct).HasColumnType("numeric(18,4)");
-        modelBuilder.Entity<LineItem>().Property(p => p.ManagerOverrideSpreadDollar).HasColumnType("numeric(18,2)");
+        modelBuilder.Entity<LineItem>().Property(p => p.PurityPercentage).HasColumnType("TEXT");
+        modelBuilder.Entity<LineItem>().Property(p => p.DealerMarginValue).HasColumnType("TEXT");
+        modelBuilder.Entity<LineItem>().Property(p => p.StoredSpotPriceG).HasColumnType("TEXT");
+        modelBuilder.Entity<LineItem>().Property(p => p.DefaultPremiumPct).HasColumnType("TEXT");
+        modelBuilder.Entity<LineItem>().Property(p => p.ManagerOverrideSpreadDollar).HasColumnType("TEXT");
 
-        modelBuilder.Entity<CatalogItem>().Property(p => p.GrossWeightGrams).HasColumnType("numeric(18,6)");
-        modelBuilder.Entity<CatalogItem>().Property(p => p.PurityPercentage).HasColumnType("numeric(18,4)");
-        modelBuilder.Entity<CatalogItem>().Property(p => p.DefaultMarginValue).HasColumnType("numeric(18,4)");
+        modelBuilder.Entity<CatalogItem>().Property(p => p.GrossWeightGrams).HasColumnType("TEXT");
+        modelBuilder.Entity<CatalogItem>().Property(p => p.PurityPercentage).HasColumnType("TEXT");
+        modelBuilder.Entity<CatalogItem>().Property(p => p.DefaultMarginValue).HasColumnType("TEXT");
 
-        modelBuilder.Entity<Quote>().Property(p => p.LockedSpotPricePerGram).HasColumnType("numeric(18,2)");
+        modelBuilder.Entity<Quote>().Property(p => p.LockedSpotPricePerGram).HasColumnType("TEXT");
         
         // Define relations
         modelBuilder.Entity<Quote>()

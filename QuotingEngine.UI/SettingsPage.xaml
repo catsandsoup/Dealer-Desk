@@ -12,33 +12,45 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        
-        <Grid Grid.Row="1" Padding="40" MaxWidth="800" HorizontalAlignment="Center">
+        <Grid Grid.Row="1" Padding="20" MaxWidth="1000" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
     
-            <TextBlock Grid.Row="0" Text="Settings" FontSize="32" FontWeight="SemiBold" Margin="0,0,0,24" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Text="Settings" FontSize="32" FontWeight="SemiBold" Margin="0,0,0,16" HorizontalAlignment="Center"/>
     
-            <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24">
+            <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
                 <ScrollViewer>
-                    <StackPanel Spacing="24">
+                    <StackPanel Spacing="16">
                         <!-- Company Profile -->
                         <StackPanel Spacing="12">
                             <TextBlock Text="1. Company Profile" FontSize="18" FontWeight="SemiBold"/>
-                            <Grid ColumnSpacing="16">
+                            <Grid ColumnSpacing="16" RowSpacing="16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" x:Name="CompanyNameBox" Header="Company Legal Name" PlaceholderText="e.g. Acme Precious Metals"/>
-                                <TextBox Grid.Column="1" x:Name="CompanyAbnBox" Header="Company Registration (ABN/EIN)" PlaceholderText="e.g. ABN 12 345 678 901"/>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <TextBox Grid.Row="0" Grid.Column="0" x:Name="CompanyNameBox" Header="Company Legal Name" PlaceholderText="e.g. Acme Precious Metals"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" x:Name="CompanyAbnBox" Header="Company Registration (ABN/EIN)" PlaceholderText="e.g. ABN 12 345 678 901"/>
+                                
+                                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="8">
+                                    <TextBlock Text="Company Logo (Appears on PDFs)" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <Button Content="Browse..." Click="BrowseLogoBtn_Click"/>
+                                        <TextBlock x:Name="LogoPathText" VerticalAlignment="Center" FontStyle="Italic" Foreground="Gray"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TermsBox" Header="Terms &amp; Conditions (Printed on PDF)" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" PlaceholderText="Enter legally binding terms for quotes..."/>
                             </Grid>
-                            
-                            <TextBox x:Name="TermsBox" Header="Terms &amp; Conditions (Printed on PDF)" AcceptsReturn="True" TextWrapping="Wrap" Height="80" 
-                                     PlaceholderText="Enter legally binding terms for quotes..."/>
                         </StackPanel>
         
                         <!-- Localization -->
@@ -93,6 +105,20 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0" x:Name="MetalPriceApiKeyBox" Header="API Key" PlaceholderText="e.g. 66dc31386e98acbd4a754230445f217f"/>
                                 <NumberBox Grid.Column="1" x:Name="MetalPriceCacheHoursBox" Header="Cache Duration (Hours)" Value="24" SpinButtonPlacementMode="Inline"/>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <!-- Hardware Mapping -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="6. Hardware Mapping" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Text="Configure COM Ports for Scale and XRF analyzer" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" x:Name="ScaleComPortBox" Header="Scale COM Port" PlaceholderText="e.g. COM3"/>
+                                <TextBox Grid.Column="1" x:Name="XrfComPortBox" Header="XRF COM Port" PlaceholderText="e.g. COM4"/>
                             </Grid>
                         </StackPanel>
                         

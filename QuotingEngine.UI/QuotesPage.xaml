@@ -6,7 +6,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:QuotingEngine.Core.Models"
+    xmlns:converters="using:QuotingEngine.UI.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:NumericStringConverter x:Key="NumericConverter"/>
+    </Page.Resources>
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
@@ -17,6 +22,9 @@
         <!-- CommandBar -->
         <Grid Grid.Row="0" Background="Transparent">
             <CommandBar DefaultLabelPosition="Right" Background="Transparent" VerticalAlignment="Center">
+                <AppBarButton Icon="Add" Label="New Order" Command="{x:Bind ViewModel.NewOrderCommand}"/>
+                <AppBarButton Icon="Undo" Label="Undo" Command="{x:Bind ViewModel.UndoCommand}"/>
+                <AppBarButton Icon="Delete" Label="Delete Draft" Command="{x:Bind ViewModel.DeleteDraftCommand}"/>
                 <AppBarButton x:Name="TearOutTickerBtn" Icon="NewWindow" Label="Tear Out Ticker" Click="TearOutTickerBtn_Click"/>
 
                 <AppBarSeparator/>
@@ -95,11 +103,11 @@
                             </controls:DataGridTemplateColumn.CellEditingTemplate>
                         </controls:DataGridTemplateColumn>
                         <controls:DataGridTextColumn Header="Qty" Binding="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <controls:DataGridTextColumn Header="Gross Wt (g)" Binding="{Binding GrossWeightGrams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Purity %" Binding="{Binding PurityPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Fine Wt (g)" Binding="{Binding FineWeightGrams}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Spot / g" Binding="{Binding LiveSpotPricePerGram}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Margin" Binding="{Binding DealerMarginValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Gross Wt (g)" Binding="{Binding GrossWeightGrams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NumericConverter}}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Purity %" Binding="{Binding PurityPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NumericConverter}}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Fine Wt (g)" Binding="{Binding FineWeightGrams, Converter={StaticResource NumericConverter}}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Spot / g" Binding="{Binding LiveSpotPricePerGram, Converter={StaticResource NumericConverter}}" Width="*"/>
+                        <controls:DataGridTextColumn Header="Margin" Binding="{Binding DealerMarginValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NumericConverter}}" Width="*"/>
                         <controls:DataGridTextColumn Header="Final Price" Binding="{Binding FinalFiatPrice}" Width="*" IsReadOnly="True"/>
                         <controls:DataGridTemplateColumn Header="Delete" Width="80">
                             <controls:DataGridTemplateColumn.CellTemplate>

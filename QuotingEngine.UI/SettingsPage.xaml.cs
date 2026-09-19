@@ -23,6 +23,7 @@ public sealed partial class SettingsPage : Page
         var config = ConfigurationManager.Load();
         CompanyNameBox.Text = config.CompanyName;
         CompanyAbnBox.Text = config.CompanyAbn;
+        LogoPathText.Text = config.CompanyLogoPath ?? "";
         TermsBox.Text = config.CustomTermsAndConditions;
         
         foreach (Microsoft.UI.Xaml.Controls.ComboBoxItem item in CurrencyBox.Items)
@@ -47,6 +48,8 @@ public sealed partial class SettingsPage : Page
         DefaultMarginBox.Value = (double)(config.DefaultScrapMargin * 100); 
         MetalPriceApiKeyBox.Text = config.MetalPriceApiKey;
         MetalPriceCacheHoursBox.Value = config.MetalPriceCacheHours;
+        ScaleComPortBox.Text = config.ScaleComPort;
+        XrfComPortBox.Text = config.XrfComPort;
     }
 
     private void CancelBtn_Click(object sender, RoutedEventArgs e)
@@ -55,6 +58,40 @@ public sealed partial class SettingsPage : Page
         if (this.Frame != null && this.Frame.CanGoBack)
         {
             this.Frame.GoBack();
+        }
+    }
+
+    private async void BrowseLogoBtn_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var window = QuotingEngine_UI.App.CurrentWindow;
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                var appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DealerDesk");
+                Directory.CreateDirectory(appData);
+                var destPath = Path.Combine(appData, "logo" + file.FileType);
+                
+                File.Copy(file.Path, destPath, true);
+                
+                LogoPathText.Text = destPath;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorText.Text = $"Failed to select logo: {ex.Message}";
+            ErrorText.Visibility = Visibility.Visible;
         }
     }
 
@@ -74,6 +111,7 @@ public sealed partial class SettingsPage : Page
             var config = ConfigurationManager.Load();
             config.CompanyName = CompanyNameBox.Text.Trim();
             config.CompanyAbn = CompanyAbnBox.Text.Trim();
+            config.CompanyLogoPath = LogoPathText.Text.Trim();
             config.CustomTermsAndConditions = TermsBox.Text.Trim();
             config.BaseCurrency = (CurrencyBox.SelectedItem as Microsoft.UI.Xaml.Controls.ComboBoxItem)?.Content?.ToString() ?? "AUD";
             config.TimezoneId = TimezoneBox.Text.Trim();
@@ -82,6 +120,8 @@ public sealed partial class SettingsPage : Page
             config.DefaultScrapMargin = (decimal)(DefaultMarginBox.Value / 100.0);
             config.MetalPriceApiKey = MetalPriceApiKeyBox.Text.Trim();
             config.MetalPriceCacheHours = (int)MetalPriceCacheHoursBox.Value;
+            config.ScaleComPort = ScaleComPortBox.Text.Trim();
+            config.XrfComPort = XrfComPortBox.Text.Trim();
 
             ConfigurationManager.Save(config);
 
@@ -101,9 +141,9 @@ public sealed partial class SettingsPage : Page
     {
         ContentDialog dialog = new ContentDialog
         {
-            Title = "Factory Reset",
-            Content = "This will permanently delete all configuration and historical quotes. Are you absolutely sure?",
-            PrimaryButtonText = "Reset Everything",
+            Title = "Secure Data Wipe & Reset",
+            Content = "Do you want to securely wipe all historical transaction data and configuration? WARNING: This action cannot be undone and will scrub the local database completely.",
+            PrimaryButtonText = "Wipe All Data",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,
             XamlRoot = this.Content.XamlRoot

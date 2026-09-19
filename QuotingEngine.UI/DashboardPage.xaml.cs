@@ -30,7 +30,7 @@ public sealed partial class DashboardPage : Page
         this.InitializeComponent();
         
         QuotesList.ItemsSource = _quotes;
-        LoadRecentQuotes();
+        _ = LoadRecentQuotesAsync();
     }
     
     private async void RefreshSpotBtn_Click(object sender, RoutedEventArgs e)
@@ -50,18 +50,17 @@ public sealed partial class DashboardPage : Page
         }
     }
 
-    private void LoadRecentQuotes()
+    private async System.Threading.Tasks.Task LoadRecentQuotesAsync()
     {
         try
         {
             using var db = new AppDbContext(DbPath);
-            db.Database.EnsureCreated();
             
-            var recent = db.Quotes
+            var recent = await db.Quotes
                 .Include(q => q.Items)
                 .OrderByDescending(q => q.CreatedAtUtc)
                 .Take(50)
-                .ToList();
+                .ToListAsync();
                 
             _quotes.Clear();
             foreach (var q in recent)
@@ -69,7 +68,7 @@ public sealed partial class DashboardPage : Page
                 if (q.IsExpired())
                 {
                     q.Status = QuoteStatus.Expired;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
                 _quotes.Add(q);
             }
@@ -82,36 +81,34 @@ public sealed partial class DashboardPage : Page
 
     private void SearchBtn_Click(object sender, RoutedEventArgs e)
     {
-        PerformSearch();
+        _ = PerformSearchAsync();
     }
 
     private void SearchBox_KeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
-            PerformSearch();
+            _ = PerformSearchAsync();
         }
     }
 
-    private void PerformSearch()
+    private async System.Threading.Tasks.Task PerformSearchAsync()
     {
         try
         {
             var term = SearchBox.Text?.Trim().ToUpper() ?? "";
             using var db = new AppDbContext(DbPath);
             
-            // Build query directly on the DbSet — no AsQueryable() needed,
-            // which avoids IL2026 trim warnings and is cleaner EF Core usage.
-            var query = db.Quotes.Include(q => q.Items).AsEnumerable();
+            var query = db.Quotes.Include(q => q.Items).AsQueryable();
             
             if (!string.IsNullOrEmpty(term))
             {
                 query = query.Where(q => 
-                    q.ReferenceId.Contains(term, StringComparison.OrdinalIgnoreCase) || 
-                    q.CustomerName.Contains(term, StringComparison.OrdinalIgnoreCase));
+                    q.ReferenceId.ToUpper().Contains(term) || 
+                    q.CustomerName.ToUpper().Contains(term));
             }
             
-            var results = query.OrderByDescending(q => q.CreatedAtUtc).Take(50).ToList();
+            var results = await query.OrderByDescending(q => q.CreatedAtUtc).Take(50).ToListAsync();
             
             _quotes.Clear();
             foreach (var q in results)
@@ -119,7 +116,7 @@ public sealed partial class DashboardPage : Page
                 if (q.IsExpired())
                 {
                     q.Status = QuoteStatus.Expired;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
                 _quotes.Add(q);
             }

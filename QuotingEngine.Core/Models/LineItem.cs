@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
 namespace QuotingEngine.Core.Models;
@@ -89,6 +90,7 @@ public class LineItem : INotifyPropertyChanged
                 OnPropertyChanged(nameof(FineWeightGrams));
                 OnPropertyChanged(nameof(RawFiatValue));
                 OnPropertyChanged(nameof(FinalFiatPrice));
+                OnPropertyChanged(nameof(WeightInputText));
             }
         }
     }
@@ -103,7 +105,42 @@ public class LineItem : INotifyPropertyChanged
                 OnPropertyChanged(nameof(FineWeightGrams));
                 OnPropertyChanged(nameof(RawFiatValue));
                 OnPropertyChanged(nameof(FinalFiatPrice));
+                OnPropertyChanged(nameof(PurityInputText));
             }
+        }
+    }
+
+    [NotMapped]
+    public string WeightInputText
+    {
+        get => _grossWeightGrams.ToString("G");
+        set
+        {
+            var clean = value.ToLower().Replace("g", "").Trim();
+            if (decimal.TryParse(clean, out var parsed))
+            {
+                GrossWeightGrams = parsed;
+            }
+            OnPropertyChanged();
+        }
+    }
+
+    [NotMapped]
+    public string PurityInputText
+    {
+        get => _purityPercentage.ToString("G");
+        set
+        {
+            var clean = value.Replace("%", "").Trim();
+            if (decimal.TryParse(clean, out var parsed))
+            {
+                // If they enter 99.9, we might want to store it as 0.999 depending on the system,
+                // but the current PRD expects PurityPercentage to be 0.0 - 1.0. 
+                // We will assume they type 99.9 and we convert to 0.999 if it's > 1.
+                if (parsed > 1m) parsed = parsed / 100m;
+                PurityPercentage = parsed;
+            }
+            OnPropertyChanged();
         }
     }
 

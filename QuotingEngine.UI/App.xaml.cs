@@ -54,6 +54,11 @@ public partial class App : Application
                 {
                     baseFolder = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "DealerDesk");
                 }
+                
+                if (!System.IO.Directory.Exists(baseFolder))
+                {
+                    System.IO.Directory.CreateDirectory(baseFolder);
+                }
 
                 ConfigurationManager.Initialize(baseFolder);
                 
@@ -119,13 +124,10 @@ public partial class App : Application
         {
             Host?.Start();
             
-            // Database initialization off the UI thread to prevent blocking
-            System.Threading.Tasks.Task.Run(() =>
-            {
-                var dbContext = Host?.Services.GetService(typeof(AppDbContext)) as AppDbContext;
-                // Migrate will apply all pending migrations and seed data, even if DB already exists
-                dbContext?.Database.Migrate();
-            });
+            // Database initialization synchronously on startup to prevent SQLite thread locks.
+            // EnsureCreated creates the schema and runs HasData seeds if the DB doesn't exist.
+            var dbContext = Host?.Services.GetService(typeof(AppDbContext)) as AppDbContext;
+            dbContext?.Database.EnsureCreated();
 
             var config = Host?.Services.GetService(typeof(DealerConfig)) as DealerConfig;
             

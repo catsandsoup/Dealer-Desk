@@ -42,6 +42,8 @@ public sealed partial class SetupWizardWindow : Window
 
         TimezoneBox.Text = config.TimezoneId;
         DefaultMarginBox.Value = (double)(config.DefaultScrapMargin * 100); // Convert decimal to percentage for UI
+        ScaleComPortBox.Text = config.ScaleComPort;
+        XrfComPortBox.Text = config.XrfComPort;
     }
 
     private async void SaveBtn_Click(object sender, RoutedEventArgs e)
@@ -69,7 +71,9 @@ public sealed partial class SetupWizardWindow : Window
                 ManagerPin = ManagerPinBox.Password,
                 DefaultScrapMargin = (decimal)(DefaultMarginBox.Value / 100.0), // convert -5.0 to -0.05
                 MetalPriceApiKey = MetalPriceApiKeyBox.Text.Trim(),
-                MetalPriceCacheHours = (int)MetalPriceCacheHoursBox.Value
+                MetalPriceCacheHours = (int)MetalPriceCacheHoursBox.Value,
+                ScaleComPort = ScaleComPortBox.Text.Trim(),
+                XrfComPort = XrfComPortBox.Text.Trim()
             };
 
             ConfigurationManager.Save(config);

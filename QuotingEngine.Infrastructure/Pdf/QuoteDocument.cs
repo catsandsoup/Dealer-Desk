@@ -40,6 +40,11 @@ public class QuoteDocument : IDocument
     {
         container.Row(row =>
         {
+            if (!string.IsNullOrEmpty(_config.CompanyLogoPath) && System.IO.File.Exists(_config.CompanyLogoPath))
+            {
+                row.ConstantItem(100).Height(80).PaddingRight(20).Image(_config.CompanyLogoPath);
+            }
+
             row.RelativeItem().Column(column =>
             {
                 column.Item().Text(_config.CompanyName).FontSize(20).SemiBold().FontColor(Colors.Blue.Darken2);

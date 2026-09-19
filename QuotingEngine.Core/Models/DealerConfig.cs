@@ -9,6 +9,7 @@ public class DealerConfig
     // Company Profile
     public string CompanyName { get; set; } = "Acme Precious Metals";
     public string CompanyAbn { get; set; } = "ABN 12 345 678 901";
+    public string CompanyLogoPath { get; set; } = "";
     public string CustomTermsAndConditions { get; set; } = "All quotes are binding once locked, subject to physical verification of the items presented. Payouts over $10,000 require valid government ID.";
     
     // Localization
@@ -27,4 +28,8 @@ public class DealerConfig
     // Data Providers (MetalPriceAPI)
     public string MetalPriceApiKey { get; set; } = "";
     public int MetalPriceCacheHours { get; set; } = 24;
+
+    // Hardware Mapping
+    public string ScaleComPort { get; set; } = "";
+    public string XrfComPort { get; set; } = "";
 }
