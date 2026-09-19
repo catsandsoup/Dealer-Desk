@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>DealerDesk.Core</AssemblyName>
+    <AssemblyTitle>Dealer Desk Core</AssemblyTitle>
+    <Product>Dealer Desk</Product>
+    <Company>Monty Giovenco</Company>
+    <Copyright>Copyright © Monty Giovenco</Copyright>
+    <Description>Dealer Desk Quoting Engine Core</Description>
+    <Authors>Monty Giovenco</Authors>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,54 @@
+<Window
+    x:Class="QuotingEngine.UI.ShellWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Dealer Desk">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Use TitleBar outside of NavigationView so NavigationView's Pane can sit beside it -> Wait, the standard L-Pattern TitleBar docs specify placing TitleBar in Row 0, NavView in Row 1. -->
+        <!-- But wait! In L-Pattern, NavView spans both rows (Grid.RowSpan=2), and the TitleBar is placed *on top* or the pane sits *next* to the TitleBar? -->
+        <!-- Let's just use a standard Grid where NavView spans row 1, and TitleBar spans row 0. -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Image Source="ms-appx:///Assets/AppIcon.ico" Width="20" Height="20" Margin="16,0,12,0" VerticalAlignment="Center" />
+            <TextBlock x:Name="AppTitleBarText" Grid.Column="1" Text="Dealer Desk" VerticalAlignment="Center" FontSize="12" Margin="0,0,12,0" Style="{StaticResource CaptionTextBlockStyle}"/>
+            <!-- Mockup shows Tear-out/Tear-in button or something, but we'll put tear out button on the toolbar inside the pages if needed -->
+        </Grid>
+
+        <NavigationView
+            x:Name="NavView"
+            Grid.Row="1"
+            IsSettingsVisible="True"
+            IsBackButtonVisible="Collapsed"
+            SelectionChanged="NavView_SelectionChanged"
+            Loaded="NavView_Loaded">
+            
+            <NavigationView.Resources>
+                <!-- This is the border between NavView and NavView Content -->
+                <Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
+                <!-- This is the rounded corner on the Top left of the L Pattern -->
+                <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
+            </NavigationView.Resources>
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Tag="DashboardPage" Content="Inventory" Icon="Home" />
+                <NavigationViewItem Tag="QuotesPage" Content="Quotes" Icon="Document" />
+            </NavigationView.MenuItems>
+
+            <Frame x:Name="NavFrame" />
+        </NavigationView>
+    </Grid>
+</Window>

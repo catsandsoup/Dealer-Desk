@@ -1,0 +1,114 @@
+<Page
+    x:Class="QuotingEngine.UI.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        
+        <Grid Grid.Row="1" Padding="40" MaxWidth="800" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+    
+            <TextBlock Grid.Row="0" Text="Settings" FontSize="32" FontWeight="SemiBold" Margin="0,0,0,24" HorizontalAlignment="Center"/>
+    
+            <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="24">
+                <ScrollViewer>
+                    <StackPanel Spacing="24">
+                        <!-- Company Profile -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="1. Company Profile" FontSize="18" FontWeight="SemiBold"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" x:Name="CompanyNameBox" Header="Company Legal Name" PlaceholderText="e.g. Acme Precious Metals"/>
+                                <TextBox Grid.Column="1" x:Name="CompanyAbnBox" Header="Company Registration (ABN/EIN)" PlaceholderText="e.g. ABN 12 345 678 901"/>
+                            </Grid>
+                            
+                            <TextBox x:Name="TermsBox" Header="Terms &amp; Conditions (Printed on PDF)" AcceptsReturn="True" TextWrapping="Wrap" Height="80" 
+                                     PlaceholderText="Enter legally binding terms for quotes..."/>
+                        </StackPanel>
+        
+                        <!-- Localization -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="2. Localization" FontSize="18" FontWeight="SemiBold"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" x:Name="CurrencyBox" Header="Base Currency" PlaceholderText="e.g. AUD, USD"/>
+                                <TextBox Grid.Column="1" x:Name="TimezoneBox" Header="Timezone ID" PlaceholderText="e.g. AUS Eastern Standard Time"/>
+                            </Grid>
+                        </StackPanel>
+        
+                        <!-- Hardware Mapping -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="3. Hardware Mapping" FontSize="18" FontWeight="SemiBold"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" x:Name="ComPortBox" Header="Serial Port (Scale/XRF)" PlaceholderText="e.g. COM1"/>
+                                <NumberBox Grid.Column="1" x:Name="BaudRateBox" Header="Baud Rate" Value="9600"/>
+                            </Grid>
+                        </StackPanel>
+        
+                        <!-- Security & Margins -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="4. Security &amp; Margins" FontSize="18" FontWeight="SemiBold"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <PasswordBox Grid.Column="0" x:Name="ManagerPinBox" Header="Manager Override PIN (Required)" PlaceholderText="4-digit PIN"/>
+                                <NumberBox Grid.Column="1" x:Name="DefaultMarginBox" Header="Default Scrap Margin (%)" Value="-5.0" SpinButtonPlacementMode="Inline"/>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <!-- Data Providers -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="5. Data Providers (MetalPriceAPI)" FontSize="18" FontWeight="SemiBold"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" x:Name="MetalPriceApiKeyBox" Header="API Key" PlaceholderText="e.g. 66dc31386e98acbd4a754230445f217f"/>
+                                <NumberBox Grid.Column="1" x:Name="MetalPriceCacheHoursBox" Header="Cache Duration (Hours)" Value="24" SpinButtonPlacementMode="Inline"/>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <TextBlock x:Name="ErrorText" Foreground="Red" Visibility="Collapsed"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+    
+            <Grid Grid.Row="2" Margin="0,24,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" x:Name="FactoryResetBtn" Content="Factory Reset..." Foreground="Red" Click="FactoryResetBtn_Click" Height="40"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                    <Button x:Name="CancelBtn" Content="Cancel" Click="CancelBtn_Click" Width="100" Height="40"/>
+                    <Button x:Name="SaveBtn" Content="Save &amp; Close" Style="{StaticResource AccentButtonStyle}" Click="SaveBtn_Click" Width="150" Height="40"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

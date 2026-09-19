@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="QuotingEngine.Core/QuotingEngine.Core.csproj" />
+  <Project Path="QuotingEngine.Infrastructure/QuotingEngine.Infrastructure.csproj" />
+  <Project Path="QuotingEngine.Tests/QuotingEngine.Tests.csproj" />
+  <Project Path="QuotingEngine.UI/QuotingEngine.UI.csproj" />
+</Solution>

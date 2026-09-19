@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\QuotingEngine.Core\QuotingEngine.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageReference Include="QuestPDF" Version="2026.9.0" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.12" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>DealerDesk.Infrastructure</AssemblyName>
+    <AssemblyTitle>Dealer Desk Infrastructure</AssemblyTitle>
+    <Product>Dealer Desk</Product>
+    <Company>Monty Giovenco</Company>
+    <Copyright>Copyright © Monty Giovenco</Copyright>
+    <Description>Dealer Desk Quoting Engine Infrastructure</Description>
+    <Authors>Monty Giovenco</Authors>
+  </PropertyGroup>
+
+</Project>

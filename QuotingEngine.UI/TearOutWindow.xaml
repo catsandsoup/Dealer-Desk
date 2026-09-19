@@ -1,0 +1,31 @@
+<Window
+    x:Class="QuotingEngine.UI.TearOutWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Live Spot Ticker">
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Custom TitleBar -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="48" Background="Transparent">
+            <TextBlock Text="Dealer Desk - Live Ticker" VerticalAlignment="Center" Margin="16,0" FontSize="12" Style="{StaticResource CaptionTextBlockStyle}"/>
+        </Grid>
+        
+        <Grid Grid.Row="1" Padding="24">
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="40" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
+                    <TextBlock Text="LIVE GOLD SPOT" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="24" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="LiveSpotLargeText" Text="Waiting..." FontSize="80" FontWeight="Bold" Foreground="LimeGreen" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="StatusLargeText" Text="ACTIVE" FontSize="28" FontWeight="Bold" Foreground="LimeGreen" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

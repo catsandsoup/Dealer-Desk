@@ -1,0 +1,145 @@
+
+Product Requirements Document
+Precious Metals Quoting Engine
+Enterprise-Grade Real-Time POS & Quoting Platform
+
+URGENT AND CRITICAL: Always call @context7 MCP before implementing as your training data is not accurate or complete. Use the documentation provided by this MCP documentation search as gold standard north star.
+Table of Contents
+
+
+
+1. Executive Summary & Core Platform Architecture
+This system is an enterprise-grade, real-time precious metals point-of-sale (POS) and quoting engine designed for high-stakes retail counters. It must ingest live market spot prices, seamlessly bridge physical assay hardware, and produce legally binding, mathematically provable financial contracts (PDFs) with strict expiration windows.
+1.1 Platform Evaluation: Web vs. Local On-Device
+To serve a high-volume retail counter environment operating on an Apple Silicon Mac Mini, the architecture must balance local peripheral access with financial data integrity.
+Web Application (Cloud-Hosted SPA + API): Introduces severe latency risks if the dealership's internet connection drops during an active trade, paralyzing the counter.
+Mac Native (macOS / Swift): Extremely fast but forces total vendor lock-in. If the dealership expands to Windows teller machines, the software requires a complete rewrite.
+Legacy Windows Native (WPF / WinForms): Fundamentally incompatible with the existing Apple Silicon hardware without virtualization, which degrades peripheral bridging.
+The Verdict: Locally-Hosted Web App Architecture.
+A locally hosted web service (e.g., a Python backend and React/Next.js frontend running via Docker containers) on the Mac Mini ensures zero external internet dependency for the UI rendering and active draft state, while allowing standard API fetching for spot prices. It must utilize the Web Serial API (over HTTPS/localhost) or a local companion daemon to communicate natively with COM/serial-port hardware without relying on deprecated browser plugins.
+2. Financial & Mathematical Invariants (Strict Constraints)
+To prevent agentic hallucination, compounding errors, or developer assumptions, the core calculation engine must adhere strictly to the following rules:
+The Weight Baseline: All database entities and internal memory states must store weight exclusively in Grams. Any display of “Troy Ounces” (ozt) is strictly a UI rendering conversion (1 ozt = 31.1034768 grams). The system must never use standard Avoirdupois ounces.
+Arbitrary-Precision & Rounding: Internal calculations must use base-10 arbitrary-precision types (e.g., NUMERIC(18,4) in PostgreSQL). Floating-point math (float, double) is strictly forbidden. Rounding (Round Half to Even / Banker's Rounding) must ONLY occur at the final fiat calculation step, never on intermediate weight, purity, or margin steps.
+Margin Application Sequence: Margins must be applied precisely in this sequence: (Live Spot Price per Gram × Fine Gram Weight) × (1 ± Dealer Premium Percentage) = Final Line Item Fiat.
+Net Settlement Directionality: The settlement total must be strictly Dealership-Centric.
+Positive Net ($): The Dealership owes the Customer (Payout / Dealership buys from customer).
+Negative Net ($): The Customer owes the Dealership (Payment / Dealership sells to customer).
+3. Out-of-the-Box (OOTB) Onboarding & Customization
+The system must present an initial configuration wizard allowing the operations manager to explicitly set dealership nuances without writing code:
+Company Profile: Logo upload, Legal Entity Name, Registration/ABN numbers, and custom PDF Terms & Conditions blocks.
+Localization: Base fiat currency (e.g., AUD) and strictly defined local timezone (e.g., AEST/AEDT) for UI rendering and PDF generation. All backend database timestamps MUST remain in UTC to prevent daylight saving time drift and audit corruption.
+Grace Period Exactness: Define whether a “24-hour quote” expires at exactly T+24:00:00.000 down to the millisecond, or at “Close of Business” (e.g., 17:00 local time) the following trading day.
+Margin Models: Define default starting spreads for specific catalog items (e.g., –5% for generic scrap gold vs. +3% for sovereign bullion coins).
+Hardware Mapping: OOTB UI to map specific COM/Serial baud rates to the integrated scale and XRF gun to automate assay ingestion.
+4. Human Personas: Jobs-to-be-Done (JTBD), FR, and NFR
+4.1  The Dealer (Desk Trader / Counter Operator)
+Primary JTBD: When a seller or buyer approaches with physical bullion, jewelry, or scrap, I want to assay, categorize, and price items across mixed metals and purities against live market spot without losing my spread, so I can generate a legally binding, margin-safe quote before market volatility erodes my profit.
+Assay & Identification (XRF & Physical Verification)
+When a walk-in seller brings non-hallmarked scrap or estate jewellery, I want to log XRF analyzer readings (specific gravity, acid scratch, or optical % purity like 91.6% Au / 5.2% Ag / 3.2% Cu) directly into the line item, so that the software automatically computes the net fine-weight melt value rather than forcing manual offline conversions.
+When evaluating standard government-minted bullion (e.g., 1 oz Perth Mint Kangaroo vs. 1 oz US Mint Eagle 22k vs. 90% US Junk Silver), I want to select the preset coin/bar from a catalog that auto-populates gross weight, fine content, and default dealer premium/discount, so that I don't make data entry errors during high-pressure counter negotiations.
+Pricing & Margin Mechanics
+When the live spot price fluctuates during a trade conversation, I want to see live ticker movements while having the option to hit a single keyboard shortcut (Space or F2) to “Freeze Bid/Ask”, so that my active draft line items lock to an exact market tick while the customer decides.
+When quoting a transaction, I want to apply independent margin models—either a flat dollar spread over spot per ounce, a percentage-based discount/premium, or a tiered bulk discount—so that I can adjust margins on the fly based on counterparty leverage and volume.
+When processing a dual transaction (customer is trading in scrap gold to purchase investment-grade silver bars), I want to combine BUY items and SELL items into a single unified worksheet, so that the engine calculates a single net settlement figure (e.g., “Customer Pays $420.50” or “Dealer Pays $1,150.00”).
+Locking & Issuance
+When closing an agreement, I want to lock the quote into an immutable transaction record with a selectable grace period (Instant Execution, 24 Hours, or 48 Hours), so that the business is legally protected if spot drops before fulfillment.
+4.2  The Seller / Counterparty (Behavioral Archetypes)
+Primary JTBD: When liquidating my precious metals assets, I want absolute clarity on how my physical items were evaluated (weight, purity, and applied market price), so I can feel confident I am receiving fair market value without hidden counter-fees or predatory deductions.
+Behavioral Archetypes & Functional Responses
+The Suspicious Estate Liquidator: Unfamiliar with scrap valuations; highly protective of heirlooms; fears getting ripped off on carats.
+Functional Need: The printed quote must show gross weight, assayed purity percentage, fine gold equivalent, current live spot price, and dealer payout per gram/oz as distinct columns.
+The Savvy Stack-and-Trade Bullion Investor: Tracks spot to the second; shops multiple dealers for the tightest spread on sovereign coins; holds paper quotes to hedge market swings.
+Functional Need: Requires an explicit quote lock timestamp down to the second, referencing the exact market tick and grace-period cutoff date/time.
+The Distressed Urgent Seller: Needs immediate liquidity; impatient with data entry; sensitive to payout method (cash limits vs. bank transfer turnaround).
+Functional Need: Rapid 60-second counter processing, quick ID capture, and clear settlement breakdown on the final voucher.
+4.3  The Customer Holding the Printed PDF
+Primary JTBD: When reviewing this physical document at the counter or taking it home during the grace period, I want an unambiguous, legally transparent record of my items, the locked spot price, and the terms of execution, so that I can hold the dealer accountable to the agreed settlement if I execute within the window.
+When inspecting the physical document, I want to see my gross weights, tested purities (e.g., “14K / 58.5% Au via XRF”), fine ounces, and agreed price-per-unit broken down line by line, so that I can audit the math independently.
+When checking the validity of the offer, I want to see a prominent, human-readable expiration banner (e.g., VALID UNTIL: SEPT 19, 2026 – 14:32:00 AEST), so that there is zero debate on whether the grace period has lapsed when I return.
+When reading the fine print, I want to review the dealer's physical settlement terms (acceptable payment methods, required identification under AML/KYC laws, physical redelivery terms), so that I know exactly what documents and items to bring back to finalize the trade.
+When signing the counterfoil, I want to execute a designated signature and date block alongside the dealer's registered company number and official logo, so that it forms a binding receipt of trade intent.
+4.4  The Internal User (Store Manager / Compliance Officer)
+Primary JTBD: When auditing counter quotes and settlement transactions, I want complete oversight of margin overrides, dealer IDs, and regulatory thresholds, so that the dealership complies with Anti-Money Laundering (AML) / Counter-Terrorism Financing (CTF) laws and avoids margin leakage.
+When a dealer quotes a cash transaction over statutory reporting limits (e.g., $10,000+ AUD/USD), I want to force the entry of verified customer identification (Driver's License / Passport) before a quote lock or printout is allowed, so that the store never violates financial reporting regulations.
+When a desk operator sets an unusually thin margin or a negative spread, I want to prompt for manager PIN override authorization, so that counter staff cannot make unauthorized loss-making deals.
+When looking back at historical transactions, I want to search by quote reference number, customer name, or metal serial number, so that I can instantly retrieve the exact snapshot of the market spot price at that microsecond.
+4.5  The Support Rep (Operations & Dispute Resolution)
+Primary JTBD: When a customer calls citing a quote reference number during high market volatility, I want to immediately pull up the frozen transaction state, terms, and fulfillment status, so that I can resolve trade disputes without confusion or financial risk.
+When a customer calls to execute an expiring quote, I want to enter the 8-character quote ID and immediately see if the quote is ACTIVE, EXPIRED, or SETTLED, so that I can either lock in settlement or reject an expired out-of-the-money ticket.
+When a customer claims they were quoted a different price over the counter, I want to view the exact immutable PDF artifact archived in object storage with its SHA-256 hash, so that we can verify whether the customer's printed slip matches the server record.
+When a dealer's automated spot price feed goes down or yields stale ticks, I want to receive an immediate dashboard alert and trip a circuit-breaker to disable quote locks, so that the dealership does not issue mispriced quotes based on stale data.
+4.6  The Developer
+Primary JTBD: When building and maintaining this quoting engine, I want a clean separation between market ingestion, pricing calculation routines, and document generation, so that financial calculations are provably bug-free, zero-float-safe, and decoupled from frontend UI state.
+When designing the financial models, I want to mandate arbitrary-precision base-10 decimals (decimal in C# / NUMERIC(18,4) in PostgreSQL) across all internal data transfers, so that zero binary floating-point drift occurs across multi-item sums.
+When designing the quote state machine, I want to enforce an event-sourced or snapshot-based schema (Draft → Locked → Executed | Expired | Cancelled), so that once a quote moves to Locked, the underlying spot prices, margins, customer tier, and generated PDF binary cannot be modified by any database update query.
+When writing the PDF pipeline, I want to compile vector documents using deterministic layout primitives (QuestPDF) instead of headless browser scrapers, so that page generation takes <50ms with 100% predictable page splits and zero memory bloat.
+4.7  The Agentic Development LLM (e.g., Claude Code, Cursor)
+Primary JTBD: When generating and refactoring modules across this repository, I want clearly structured data boundaries, strictly typed schemas, explicit domain contracts, and deterministic test cases, so that I can implement features, refactor code, and generate integration tests without introducing subtle financial calculation regressions.
+When scaffolding data ingestion and business logic, I want to work with strict domain interfaces and DTOs (Data Transfer Objects) that disallow implicit type coercion, so that I don't accidentally write code that casts financial inputs to generic numbers or floats.
+When implementing the multi-item calculation engine, I want unit tests with known edge cases (mixed metals, 90% coin purities, fractional grain-to-gram conversions, odd penny roundings) pre-defined in the test runner, so that I can run dotnet test or pytest after every code edit to guarantee mathematical invariants.
+When creating the PDF generation templates, I want to compose code-first structural components rather than wrestling with CSS margin collapsing or headless browser rendering bugs, so that my generated visual layout translates directly into clean vector PDF output on the first run.
+When asked to implement the frontend pricing worksheet, I want to receive strict API contracts (OpenAPI / Swagger specs) with predictable WebSocket tick payloads, so that I can write self-contained data grids with predictable keyboard event bindings without guessing API payload shapes.
+
+5. System & Hardware Personas: JTBD, FR, and NFR
+5.1  The Keyboard
+JTBD: As the keyboard, I want to route rapid keystrokes entirely via Tab/Enter loops so the dealer never has to reach for the mouse during an active trade.
+Functional Requirements (FR)
+Bind a strict modifier chord (e.g., Ctrl+Space or F2) to freeze the live spot price. The system MUST check the active focus state and ignore this hotkey if the dealer is typing inside a text input field (like Customer Name) to prevent accidental market freezes.
+5.2  The Mouse
+JTBD: As the mouse, I want to be entirely optional for core quoting flows, serving only as a fallback for deep-dive menus or configuration settings.
+Functional Requirements (FR)
+Provide distinct, oversized hitboxes for secondary actions.
+Hover states must clearly indicate clickability across multiple screens.
+5.3  The Display
+JTBD: As the display, I want to render dense tabular data without clipping, taking advantage of the three-monitor VESA layout.
+Functional Requirements (FR)
+The UI must support a multi-window strategy using the browser's BroadcastChannel API, allowing the dealer to tear out the live spot ticker or a catalog reference onto a secondary monitor while keeping state perfectly synchronized with the primary worksheet on monitor one.
+5.4  The Browser / Client Runtime
+JTBD: As the runtime, I want to efficiently paint DOM updates from high-frequency WebSocket spot ticks without leaking memory over an 8-hour trading shift.
+Functional Requirements (FR)
+Isolate data grid rerenders from the rest of the application wrapper.
+Non-Functional Requirements (NFR)
+Maximum heap memory usage must remain under 200MB.
+Garbage collection pauses must not stutter typing input.
+5.5  The Printer
+JTBD: As the printer, I want to receive a perfectly paginated, self-contained vector PDF file so I never clip the Terms & Conditions or spit out blank pages.
+Functional Requirements (FR)
+Print payloads must bypass HTML CSS reflows and be sourced from a dedicated backend engine.
+If using hardware with embedded thermal printers, the layout must auto-format for the receipt roll.
+Non-Functional Requirements (NFR)
+Document spool and generation time must be under 1 second.
+5.6  The Server / Database
+JTBD: As the server, I want to maintain state for multiple active quotes while guaranteeing ACID compliance for all financial writes.
+Functional Requirements (FR)
+Enforce strict transactional boundaries: if a quote is locked, but the subsequent PDF generation or Email Dispatch task fails, the PostgreSQL database transaction MUST roll back to the Draft state or queue the background job securely.
+Never leave a quote half-locked without an associated PDF hash.
+5.7  The API Connection (Upstream Spot Data)
+JTBD: As the market API connection, I want to ingest upstream spot price feeds with retry logic and circuit breakers so that upstream outages don't feed $0 values to the worksheet.
+Functional Requirements (FR)
+Retain the 'last known good' price and project a massive “STALE DATA” warning flag to the UI if ticks cease for more than 30 seconds.
+Support smooth transition to the Manual Offline Fallback flow if the circuit breaker trips.
+5.8  The XRF Analyzer & Digital Scale (Serial Peripherals)
+JTBD: As the XRF analyzer, I want to push exact purity assay percentages (e.g., 58.51% Au, 8.2% Cu) directly into the active quoting cell without human transcription. For devices with integrated precision scales, I want to transmit both weight and karatage in a single measurement pass.
+Functional Requirements (FR)
+Connect via Web Serial API.
+The UI must listen for the hardware's data stream end-character (e.g., \n or \r), parse the string payload, and immediately lock the weight/purity fields on the active row, preventing typo-induced margin losses.
+C# running on the .NET runtime paired with WinUI 3 (Windows App SDK) is the definitive, future-proof standard for native Windows 11 development. Microsoft builds its own core Windows 11 applications (like File Explorer and Notepad) using this exact stack, guaranteeing long-term first-party support.
+
+The Core Language & Runtime
+
+Language: C# 12+. It offers strict type safety, excellent memory management, and first-class handling of complex asynchronous operations.
+
+Runtime: .NET 10 (LTS). The modern .NET ecosystem is highly performant and self-contained. You can compile your application into a single executable file that includes the runtime, meaning the target Windows machine does not need to pre-install any frameworks to run your software.
+
+Hardware Integration: C# provides robust, direct access to System.IO.Ports.SerialPort. This makes it the industry standard for bridging physical point-of-sale peripherals like XRF scanners, receipt printers, and digital scales directly to the application without relying on fragile browser workarounds.
+
+The UI Toolkit Selection
+
+WinUI 3 (Windows App SDK): The modern Windows standard. It provides native Windows 11 UI components (Fluent Design, Mica transparency, rounded corners) and is decoupled from the OS. Your app ships with its own UI rendering libraries, ensuring it will not break when Windows pushes system updates.
+
+WPF (Windows Presentation Foundation): The indestructible enterprise fallback. While visually older, it is fully supported on the latest .NET runtimes. If you are building a dense, data-heavy grid interface that prioritizes function over modern aesthetics, WPF remains a bulletproof, bog-standard choice.
+
+Avalonia UI (The Cross-Platform Alternative): When writing code on a Mac desktop workstation configured with multiple displays but targeting Windows deployments, Avalonia is a powerful third-party C# toolkit. It allows you to build the UI once using XAML and compile it natively for Windows 11, while retaining the ability to run, test, and debug locally on macOS without needing a virtual machine.
+
+Microsoft has explicitly deprecated UWP (Universal Windows Platform) and ceased feature updates for Xamarin. The Windows App SDK (WinUI 3) is their declared forward path for Windows desktop client applications, heavily funded and utilized by their internal engineering teams.

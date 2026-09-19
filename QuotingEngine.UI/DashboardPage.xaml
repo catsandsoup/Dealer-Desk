@@ -1,0 +1,93 @@
+<Page
+    x:Class="QuotingEngine.UI.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:QuotingEngine.Core.Models"
+    mc:Ignorable="d">
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Padding="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Historical Quotes" FontSize="28" FontWeight="SemiBold"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock Text="Data provided by MetalPriceAPI.com" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                    <Button x:Name="RefreshSpotBtn" Content="Refresh Spot Prices" Click="RefreshSpotBtn_Click" Style="{StaticResource AccentButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="SearchBox" Grid.Column="0" PlaceholderText="Search by 8-character Quote ID or Customer Name..." KeyDown="SearchBox_KeyDown" VerticalAlignment="Center"/>
+                    <Button x:Name="SearchBtn" Grid.Column="1" Content="Search" Click="SearchBtn_Click" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
+                <ListView x:Name="QuotesList" BorderThickness="0" Background="Transparent">
+                    <ListView.Header>
+                        <Grid Padding="16,12" Background="{ThemeResource ControlFillColorDefaultBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Reference ID" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="Customer Name" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="2" Text="Created" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="3" Text="Status" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="4" Text="Settlement" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="5" Text="Actions" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </ListView.Header>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="16,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding ReferenceId}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding CustomerName}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding CreatedAtUtc}"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Status}"/>
+                                <TextBlock Grid.Column="4" Text="{Binding SettlementTotal}"/>
+                                <Button Grid.Column="5" Background="Transparent" BorderThickness="0" Click="DeleteQuoteBtn_Click" HorizontalAlignment="Right" Padding="4">
+                                    <SymbolIcon Symbol="Delete" Foreground="Red"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
