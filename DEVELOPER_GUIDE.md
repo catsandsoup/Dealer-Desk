@@ -41,6 +41,19 @@ dotnet ef migrations add <MigrationName> --project QuotingEngine.Infrastructure 
 dotnet ef database update --project QuotingEngine.Infrastructure --startup-project QuotingEngine.UI
 ```
 
+## Code Signing & MSIX Installation (Local Testing)
+Because MSIX packages require digital signatures to install on Windows, a local self-signed certificate has been generated for testing purposes: `DealerDeskLocalCert.cer` (located in the project root). 
+
+Before you can install the `.msix` package on your local machine, you must trust this certificate:
+1. Double-click `DealerDeskLocalCert.cer`.
+2. Click **Install Certificate...**
+3. Select **Local Machine** and click Next.
+4. Select **Place all certificates in the following store** and click **Browse...**
+5. Choose **Trusted Root Certification Authorities** and click OK.
+6. Click Next, then Finish.
+
+Once trusted, Windows will allow the installation of the test MSIX package.
+
 ## Packaging & Distribution
 The application uses Single-Project MSIX packaging for clean deployment.
 To create a release MSIX installer, run the publishing command:

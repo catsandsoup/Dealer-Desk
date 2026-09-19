@@ -10,7 +10,7 @@
 
   <Identity
     Name="DealerDesk"
-    Publisher="CN=MontyGiovenco, O=Monty Giovenco, L=Sydney, C=AU"
+    Publisher="CN=DealerDesk"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="6C2A4AE6-9E01-474E-8A4D-3B3D73A99A4C" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
