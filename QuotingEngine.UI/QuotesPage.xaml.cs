@@ -35,13 +35,22 @@ public sealed partial class QuotesPage : Page
         // Setup keyboard hook for F2 at page level
         this.Loaded += (s, e) => {
             this.Focus(FocusState.Programmatic);
-            this.KeyDown += Content_KeyDown;
         };
         this.Unloaded += QuotesPage_Unloaded;
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ViewModel.CurrentSpotPrice) || e.PropertyName == nameof(ViewModel.IsSpotFrozen))
+        {
+            _tickerWindow?.UpdateSpotPrice(ViewModel.CurrentSpotPrice, ViewModel.IsSpotFrozen);
+        }
     }
 
     private void QuotesPage_Unloaded(object sender, RoutedEventArgs args)
     {
+        ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
         ViewModel.Dispose();
         _tickerWindow?.Close();
     }
@@ -100,13 +109,7 @@ public sealed partial class QuotesPage : Page
 
     private void Content_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.F2)
-        {
-            ViewModel.ToggleSpotFreezeCommand.Execute(null);
-            _tickerWindow?.UpdateSpotPrice(ViewModel.CurrentSpotPrice, ViewModel.IsSpotFrozen);
-            e.Handled = true;
-        }
-        else if (e.Key == Windows.System.VirtualKey.Z && 
+        if (e.Key == Windows.System.VirtualKey.Z && 
                  Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down))
         {
             ViewModel.UndoCommand.Execute(null);
@@ -199,8 +202,8 @@ public sealed partial class QuotesPage : Page
                 Items = ViewModel.LineItems.ToList()
             };
 
-            var pdfGen = new PdfGenerator();
-            var (bytes, hash) = pdfGen.GenerateQuotePdf(quote);
+            var filePath = QuotingEngine.Infrastructure.Pdf.PdfGenerator.GenerateQuotePdf(quote, _config);
+            var hash = QuotingEngine.Infrastructure.Pdf.PdfGenerator.ComputeFileHash(filePath);
             quote.PdfSha256Hash = hash;
 
             // Resolve DbContext to save
@@ -210,11 +213,6 @@ public sealed partial class QuotesPage : Page
                 dbContext.Quotes.Add(quote);
                 dbContext.SaveChanges();
             }
-
-            var filePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                $"Quote_{quote.ReferenceId}.pdf");
-            File.WriteAllBytes(filePath, bytes);
 
             try
             {

@@ -23,6 +23,25 @@ public sealed partial class ShellWindow : Window
         // Navigate to default page
         NavView.SelectedItem = NavView.MenuItems[0];
         NavFrame.Navigate(typeof(DashboardPage));
+        
+        // Add global keyboard shortcut hook for F2 Spot Freeze
+        if (this.Content is UIElement rootElement)
+        {
+            rootElement.PreviewKeyDown += RootElement_PreviewKeyDown;
+        }
+    }
+    
+    private void RootElement_PreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.F2)
+        {
+            var viewModel = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<QuotingEngine.UI.ViewModels.MainWindowViewModel>(QuotingEngine_UI.App.Host?.Services!);
+            if (viewModel != null)
+            {
+                viewModel.ToggleSpotFreezeCommand.Execute(null);
+                e.Handled = true;
+            }
+        }
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
