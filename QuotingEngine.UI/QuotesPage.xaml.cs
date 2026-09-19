@@ -28,6 +28,7 @@ public sealed partial class QuotesPage : Page
         _config = QuotingEngine_UI.App.Host?.Services.GetService<DealerConfig>()!;
         
         this.InitializeComponent();
+        this.DataContext = this;
         
         // AppTitleBarText.Text = _config.CompanyName;
 

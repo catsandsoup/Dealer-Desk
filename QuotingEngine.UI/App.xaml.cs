@@ -68,7 +68,7 @@ public partial class App : Application
                 
                 // Services
                 services.AddSingleton<SpotPriceClient>(sp => new SpotPriceClient(config.MetalPriceApiKey, config.BaseCurrency, config.MetalPriceCacheHours));
-                services.AddSingleton<SerialPortReader>(sp => new SerialPortReader(config.ScaleComPort, config.ScaleBaudRate));
+                services.AddSingleton<SerialPortReader>(sp => new SerialPortReader("COM1", 9600));
 
                 // ViewModels
                 services.AddTransient<QuotingEngine.UI.ViewModels.MainWindowViewModel>();

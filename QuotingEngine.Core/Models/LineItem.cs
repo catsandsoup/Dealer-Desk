@@ -26,6 +26,7 @@ public class LineItem : INotifyPropertyChanged
     private decimal _storedSpotPriceG;
     private decimal _defaultPremiumPct;
     private decimal _managerOverrideSpreadDollar;
+    private string _assayMethod = "None";
 
     public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -70,6 +71,12 @@ public class LineItem : INotifyPropertyChanged
                 OnPropertyChanged(nameof(FinalFiatPrice));
             }
         }
+    }
+
+    public string AssayMethod
+    {
+        get => _assayMethod;
+        set => SetProperty(ref _assayMethod, value);
     }
 
     public decimal GrossWeightGrams

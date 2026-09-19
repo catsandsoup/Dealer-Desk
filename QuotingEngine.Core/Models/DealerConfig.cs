@@ -15,9 +15,8 @@ public class DealerConfig
     public string BaseCurrency { get; set; } = "AUD";
     public string TimezoneId { get; set; } = "AUS Eastern Standard Time"; // Windows timezone ID
     
-    // Hardware Mapping
-    public string ScaleComPort { get; set; } = "COM1";
-    public int ScaleBaudRate { get; set; } = 9600;
+    // Assay Tools
+    public System.Collections.Generic.List<string> AvailableAssayTools { get; set; } = new();
     
     // Security
     public string ManagerPin { get; set; } = "1234";

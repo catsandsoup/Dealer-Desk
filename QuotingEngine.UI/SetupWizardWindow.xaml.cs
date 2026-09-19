@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.UI.Xaml;
 using QuotingEngine.Core.Models;
 using QuotingEngine.Infrastructure.Configuration;
@@ -27,10 +30,17 @@ public sealed partial class SetupWizardWindow : Window
         CompanyNameBox.Text = config.CompanyName;
         CompanyAbnBox.Text = config.CompanyAbn;
         TermsBox.Text = config.CustomTermsAndConditions;
-        CurrencyBox.Text = config.BaseCurrency;
+        
+        foreach (Microsoft.UI.Xaml.Controls.ComboBoxItem item in CurrencyBox.Items)
+        {
+            if (item.Content.ToString() == config.BaseCurrency)
+            {
+                CurrencyBox.SelectedItem = item;
+                break;
+            }
+        }
+
         TimezoneBox.Text = config.TimezoneId;
-        ComPortBox.Text = config.ScaleComPort;
-        BaudRateBox.Value = config.ScaleBaudRate;
         DefaultMarginBox.Value = (double)(config.DefaultScrapMargin * 100); // Convert decimal to percentage for UI
     }
 
@@ -53,10 +63,9 @@ public sealed partial class SetupWizardWindow : Window
                 CompanyName = CompanyNameBox.Text.Trim(),
                 CompanyAbn = CompanyAbnBox.Text.Trim(),
                 CustomTermsAndConditions = TermsBox.Text.Trim(),
-                BaseCurrency = CurrencyBox.Text.Trim().ToUpper(),
+                BaseCurrency = (CurrencyBox.SelectedItem as Microsoft.UI.Xaml.Controls.ComboBoxItem)?.Content?.ToString() ?? "AUD",
                 TimezoneId = TimezoneBox.Text.Trim(),
-                ScaleComPort = ComPortBox.Text.Trim().ToUpper(),
-                ScaleBaudRate = (int)BaudRateBox.Value,
+                AvailableAssayTools = AssayToolsListView.SelectedItems.Select(x => ((Microsoft.UI.Xaml.Controls.ListViewItem)x).Content.ToString()!).ToList(),
                 ManagerPin = ManagerPinBox.Password,
                 DefaultScrapMargin = (decimal)(DefaultMarginBox.Value / 100.0), // convert -5.0 to -0.05
                 MetalPriceApiKey = MetalPriceApiKeyBox.Text.Trim(),

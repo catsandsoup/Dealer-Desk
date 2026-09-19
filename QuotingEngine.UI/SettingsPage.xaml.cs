@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -22,10 +24,25 @@ public sealed partial class SettingsPage : Page
         CompanyNameBox.Text = config.CompanyName;
         CompanyAbnBox.Text = config.CompanyAbn;
         TermsBox.Text = config.CustomTermsAndConditions;
-        CurrencyBox.Text = config.BaseCurrency;
+        
+        foreach (Microsoft.UI.Xaml.Controls.ComboBoxItem item in CurrencyBox.Items)
+        {
+            if (item.Content.ToString() == config.BaseCurrency)
+            {
+                CurrencyBox.SelectedItem = item;
+                break;
+            }
+        }
+
         TimezoneBox.Text = config.TimezoneId;
-        ComPortBox.Text = config.ScaleComPort;
-        BaudRateBox.Value = config.ScaleBaudRate;
+        
+        foreach (Microsoft.UI.Xaml.Controls.ListViewItem item in AssayToolsListView.Items)
+        {
+            if (config.AvailableAssayTools.Contains(item.Content.ToString()))
+            {
+                AssayToolsListView.SelectedItems.Add(item);
+            }
+        }
         ManagerPinBox.Password = config.ManagerPin;
         DefaultMarginBox.Value = (double)(config.DefaultScrapMargin * 100); 
         MetalPriceApiKeyBox.Text = config.MetalPriceApiKey;
@@ -58,10 +75,9 @@ public sealed partial class SettingsPage : Page
             config.CompanyName = CompanyNameBox.Text.Trim();
             config.CompanyAbn = CompanyAbnBox.Text.Trim();
             config.CustomTermsAndConditions = TermsBox.Text.Trim();
-            config.BaseCurrency = CurrencyBox.Text.Trim().ToUpper();
+            config.BaseCurrency = (CurrencyBox.SelectedItem as Microsoft.UI.Xaml.Controls.ComboBoxItem)?.Content?.ToString() ?? "AUD";
             config.TimezoneId = TimezoneBox.Text.Trim();
-            config.ScaleComPort = ComPortBox.Text.Trim().ToUpper();
-            config.ScaleBaudRate = (int)BaudRateBox.Value;
+            config.AvailableAssayTools = AssayToolsListView.SelectedItems.Select(x => ((Microsoft.UI.Xaml.Controls.ListViewItem)x).Content.ToString()!).ToList();
             config.ManagerPin = ManagerPinBox.Password;
             config.DefaultScrapMargin = (decimal)(DefaultMarginBox.Value / 100.0);
             config.MetalPriceApiKey = MetalPriceApiKeyBox.Text.Trim();

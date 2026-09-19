@@ -124,8 +124,8 @@ public class IntegrationTests : IDisposable
             Type = TransactionType.Buy,
             GrossWeightGrams = 10m,
             PurityPercentage = 1m,
-            LiveSpotPricePerGram = 100m,
-            DealerMarginPercentage = -0.05m // 5% discount
+            MarginType = MarginType.Percentage,
+            DealerMarginValue = -0.05m // 5% feediscount
         };
         
         // Dealer buys, owes customer. Base 1000 * 0.95 = +$950
@@ -136,8 +136,8 @@ public class IntegrationTests : IDisposable
             Type = TransactionType.Sell,
             GrossWeightGrams = 10m,
             PurityPercentage = 1m,
-            LiveSpotPricePerGram = 100m,
-            DealerMarginPercentage = 0.05m // 5% premium
+            MarginType = MarginType.FlatDollar,
+            DealerMarginValue = 100m // $100 premium
         };
 
         // Dealer sells, customer owes dealer. Base 1000 * 1.05 = $1050, but negative because Sell

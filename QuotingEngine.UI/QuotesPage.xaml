@@ -79,6 +79,21 @@
                         </controls:DataGridTemplateColumn>
         
                         <controls:DataGridTextColumn Header="Description" Binding="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="2*"/>
+                        
+                        <controls:DataGridTemplateColumn Header="Assay Method" Width="120">
+                            <controls:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding AssayMethod}" VerticalAlignment="Center" Margin="12,0"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellTemplate>
+                            <controls:DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectedItem="{Binding AssayMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                              ItemsSource="{Binding DataContext.ViewModel.AvailableAssayTools, ElementName=WorksheetGrid}"
+                                              HorizontalAlignment="Stretch" Margin="4"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellEditingTemplate>
+                        </controls:DataGridTemplateColumn>
                         <controls:DataGridTextColumn Header="Qty" Binding="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                         <controls:DataGridTextColumn Header="Gross Wt (g)" Binding="{Binding GrossWeightGrams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                         <controls:DataGridTextColumn Header="Purity %" Binding="{Binding PurityPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>

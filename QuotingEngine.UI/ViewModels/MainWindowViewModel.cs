@@ -9,6 +9,7 @@ using QuotingEngine.Core.Api;
 using QuotingEngine.Core.Services;
 using QuotingEngine.Infrastructure.Data;
 using QuotingEngine.Infrastructure.Hardware;
+using QuotingEngine.Infrastructure.Configuration;
 
 namespace QuotingEngine.UI.ViewModels;
 
@@ -24,8 +25,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     // The undo stack: stores a snapshot of the LineItems list.
     private readonly System.Collections.Generic.Stack<System.Collections.Generic.List<LineItem>> _undoStack = new();
 
-    public ObservableCollection<LineItem> LineItems { get; } = new();
+    public ObservableCollection<LineItem> LineItems { get; set; } = new();
     public ObservableCollection<CatalogItem> CatalogItems { get; } = new();
+    public ObservableCollection<string> AvailableAssayTools { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentSpotPriceText))]
@@ -72,6 +74,12 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         // Ensure database is initialized (this shouldn't block the UI in a real app, 
         // but for now we preserve the behavior pending async host startup).
         LoadCatalog();
+        
+        var config = ConfigurationManager.Load();
+        foreach (var tool in config.AvailableAssayTools)
+        {
+            AvailableAssayTools.Add(tool);
+        }
 
         LineItems.CollectionChanged += (s, e) => 
         {

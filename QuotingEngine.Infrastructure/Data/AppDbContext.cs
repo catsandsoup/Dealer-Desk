@@ -32,7 +32,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<LineItem>().Property(p => p.GrossWeightGrams).HasColumnType("numeric(18,6)");
         modelBuilder.Entity<LineItem>().Ignore(p => p.FineWeightGrams);
         modelBuilder.Entity<LineItem>().Property(p => p.PurityPercentage).HasColumnType("numeric(18,4)");
-        modelBuilder.Entity<LineItem>().Property(p => p.DealerMarginPercentage).HasColumnType("numeric(18,4)");
+        modelBuilder.Entity<LineItem>().Property(p => p.DealerMarginValue).HasColumnType("numeric(18,4)");
         modelBuilder.Entity<LineItem>().Property(p => p.StoredSpotPriceG).HasColumnType("numeric(18,2)");
         modelBuilder.Entity<LineItem>().Property(p => p.DefaultPremiumPct).HasColumnType("numeric(18,4)");
         modelBuilder.Entity<LineItem>().Property(p => p.ManagerOverrideSpreadDollar).HasColumnType("numeric(18,2)");

@@ -49,22 +49,25 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" x:Name="CurrencyBox" Header="Base Currency" PlaceholderText="e.g. AUD, USD"/>
+                                <ComboBox Grid.Column="0" x:Name="CurrencyBox" Header="Base Currency" HorizontalAlignment="Stretch">
+                                    <ComboBoxItem Content="AUD"/>
+                                    <ComboBoxItem Content="USD"/>
+                                </ComboBox>
                                 <TextBox Grid.Column="1" x:Name="TimezoneBox" Header="Timezone ID" PlaceholderText="e.g. AUS Eastern Standard Time"/>
                             </Grid>
                         </StackPanel>
         
-                        <!-- Hardware Mapping -->
+                        <!-- Assay Tools -->
                         <StackPanel Spacing="12">
-                            <TextBlock Text="3. Hardware Mapping" FontSize="18" FontWeight="SemiBold"/>
-                            <Grid ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" x:Name="ComPortBox" Header="Serial Port (Scale/XRF)" PlaceholderText="e.g. COM1"/>
-                                <NumberBox Grid.Column="1" x:Name="BaudRateBox" Header="Baud Rate" Value="9600"/>
-                            </Grid>
+                            <TextBlock Text="3. Assay Tools" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Text="What tools do you use to assay precious metals?" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <ListView x:Name="AssayToolsListView" SelectionMode="Multiple" Height="150" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" CornerRadius="4">
+                                <ListViewItem Content="XRF (X-Ray Fluorescence)"/>
+                                <ListViewItem Content="Sigma Metalytics"/>
+                                <ListViewItem Content="Acid Scratch Test"/>
+                                <ListViewItem Content="Specific Gravity (Density)"/>
+                                <ListViewItem Content="Visual / Loupe"/>
+                            </ListView>
                         </StackPanel>
         
                         <!-- Security & Margins -->
