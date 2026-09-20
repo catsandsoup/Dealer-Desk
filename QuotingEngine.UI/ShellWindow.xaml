@@ -44,8 +44,8 @@
             </NavigationView.Resources>
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Tag="DashboardPage" Content="Inventory" Icon="Home" />
-                <NavigationViewItem Tag="QuotesPage" Content="Quotes" Icon="Document" />
+                <NavigationViewItem x:Name="DashboardNavViewItem" AutomationProperties.AutomationId="DashboardNavViewItem" Tag="DashboardPage" Content="Inventory" Icon="Home" />
+                <NavigationViewItem x:Name="QuotesNavViewItem" AutomationProperties.AutomationId="QuotesNavViewItem" Tag="QuotesPage" Content="Quotes" Icon="Document" />
             </NavigationView.MenuItems>
 
             <Frame x:Name="NavFrame" />

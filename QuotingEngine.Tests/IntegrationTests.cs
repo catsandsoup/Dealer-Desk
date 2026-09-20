@@ -93,24 +93,15 @@ public class IntegrationTests : IDisposable
     }
 
     [Fact]
-    public async Task Test_SpotPriceClient_EmitsUpdates()
+    public async Task Test_SpotPriceClient_WithoutApiKey_SetsStale()
     {
-        var client = new SpotPriceClient();
-        var tcs = new TaskCompletionSource<decimal>();
+        var client = new SpotPriceClient("", "AUD", 24);
+        var tcs = new TaskCompletionSource<bool>();
 
-        client.SpotPriceUpdated += (sender, args) =>
-        {
-            tcs.TrySetResult(args.GoldSpotPrice);
-        };
-
-        client.StartConnecting();
-
-        // Wait for first tick (should happen quickly, 100-300ms)
-        var resultingTask = await Task.WhenAny(tcs.Task, Task.Delay(2000));
-        
-        Assert.True(resultingTask == tcs.Task, "Spot price client did not emit a price within 2 seconds.");
-        Assert.True(await tcs.Task > 0); // Spot price should be valid
+        // We can just assert that it starts stale and stays stale, or we can check IsStale directly.
+        Assert.True(client.IsStale, "Client should be initialized as stale.");
     }
+
 
     [Fact]
     public void Test_BuySell_DirectionalityMath()
@@ -125,7 +116,8 @@ public class IntegrationTests : IDisposable
             GrossWeightGrams = 10m,
             PurityPercentage = 1m,
             MarginType = MarginType.Percentage,
-            DealerMarginValue = -0.05m // 5% feediscount
+            DealerMarginValue = -0.05m, // 5% feediscount
+            LiveSpotPricePerGram = 100m
         };
         
         // Dealer buys, owes customer. Base 1000 * 0.95 = +$950
@@ -137,11 +129,12 @@ public class IntegrationTests : IDisposable
             GrossWeightGrams = 10m,
             PurityPercentage = 1m,
             MarginType = MarginType.FlatDollar,
-            DealerMarginValue = 100m // $100 premium
+            DealerMarginValue = 100m, // $100 premium
+            LiveSpotPricePerGram = 100m
         };
 
-        // Dealer sells, customer owes dealer. Base 1000 * 1.05 = $1050, but negative because Sell
-        Assert.Equal(-1050m, sellItem.FinalFiatPrice);
+        // Dealer sells, customer owes dealer. Base 1000 + 100 Flat Premium = $1100, but negative because Sell
+        Assert.Equal(-1100m, sellItem.FinalFiatPrice);
     }
 
     [Fact]

@@ -22,9 +22,9 @@
         <!-- CommandBar -->
         <Grid Grid.Row="0" Background="Transparent">
             <CommandBar DefaultLabelPosition="Right" Background="Transparent" VerticalAlignment="Center">
-                <AppBarButton Icon="Add" Label="New Order" Command="{x:Bind ViewModel.NewOrderCommand}"/>
-                <AppBarButton Icon="Undo" Label="Undo" Command="{x:Bind ViewModel.UndoCommand}"/>
-                <AppBarButton Icon="Delete" Label="Delete Draft" Command="{x:Bind ViewModel.DeleteDraftCommand}"/>
+                <AppBarButton x:Name="NewOrderBtn" AutomationProperties.AutomationId="NewOrderBtn" Icon="Add" Label="New Order" Command="{x:Bind ViewModel.NewOrderCommand}"/>
+                <AppBarButton x:Name="UndoBtn" AutomationProperties.AutomationId="UndoBtn" Icon="Undo" Label="Undo" Command="{x:Bind ViewModel.UndoCommand}"/>
+                <AppBarButton x:Name="DeleteDraftBtn" AutomationProperties.AutomationId="DeleteDraftBtn" Icon="Delete" Label="Delete Draft" Command="{x:Bind ViewModel.DeleteDraftCommand}"/>
                 <AppBarButton x:Name="TearOutTickerBtn" Icon="NewWindow" Label="Tear Out Ticker" Click="TearOutTickerBtn_Click"/>
 
                 <AppBarSeparator/>
@@ -56,7 +56,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBox x:Name="CustomerNameBox" Grid.Column="0" Header="Customer Name" PlaceholderText="Legal Name" Text="{x:Bind ViewModel.CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnCustomerNameKeyDown"/>
+                    <TextBox x:Name="CustomerNameBox" AutomationProperties.AutomationId="CustomerNameBox" Grid.Column="0" Header="Customer Name" PlaceholderText="Legal Name" Text="{x:Bind ViewModel.CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnCustomerNameKeyDown"/>
                     <TextBox x:Name="IdDocBox" Grid.Column="1" Header="ID Document" PlaceholderText="Driver's License" Text="{x:Bind ViewModel.IdDocument, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBox x:Name="IdNumBox" Grid.Column="2" Header="ID Number" PlaceholderText="ID #" Text="{x:Bind ViewModel.IdNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
@@ -64,7 +64,7 @@
             
             <!-- DataGrid Card -->
             <Border Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Margin="0,0,0,16">
-                <controls:DataGrid x:Name="WorksheetGrid" 
+                <controls:DataGrid x:Name="WorksheetGrid" AutomationProperties.AutomationId="WorksheetGrid"
                                    AutoGenerateColumns="False" 
                                    ItemsSource="{x:Bind ViewModel.LineItems}"
                                    GridLinesVisibility="Horizontal"
@@ -86,7 +86,13 @@
                             </controls:DataGridTemplateColumn.CellEditingTemplate>
                         </controls:DataGridTemplateColumn>
         
-                        <controls:DataGridTextColumn Header="Description" Binding="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="2*"/>
+                        <controls:DataGridTemplateColumn Header="Description" Width="2*">
+                            <controls:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Background="Transparent" BorderThickness="0" Margin="4"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellTemplate>
+                        </controls:DataGridTemplateColumn>
                         
                         <controls:DataGridTemplateColumn Header="Assay Method" Width="120">
                             <controls:DataGridTemplateColumn.CellTemplate>
@@ -96,18 +102,48 @@
                             </controls:DataGridTemplateColumn.CellTemplate>
                             <controls:DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
-                                    <ComboBox SelectedItem="{Binding AssayMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    <ComboBox SelectedItem="{Binding AssayMethod, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" 
                                               ItemsSource="{Binding DataContext.ViewModel.AvailableAssayTools, ElementName=WorksheetGrid}"
                                               HorizontalAlignment="Stretch" Margin="4"/>
                                 </DataTemplate>
                             </controls:DataGridTemplateColumn.CellEditingTemplate>
                         </controls:DataGridTemplateColumn>
-                        <controls:DataGridTextColumn Header="Qty" Binding="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <controls:DataGridTextColumn Header="Gross Wt (g)" Binding="{Binding GrossWeightGrams, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NumericConverter}}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Purity %" Binding="{Binding PurityPercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NumericConverter}}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Fine Wt (g)" Binding="{Binding FineWeightGrams, Converter={StaticResource NumericConverter}}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Spot / g" Binding="{Binding LiveSpotPricePerGram, Converter={StaticResource NumericConverter}}" Width="*"/>
-                        <controls:DataGridTextColumn Header="Margin" Binding="{Binding DealerMarginValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NumericConverter}}" Width="*"/>
+                        
+                        <controls:DataGridTemplateColumn Header="Qty" Width="60">
+                            <controls:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox AutomationProperties.AutomationId="QtyInput" Text="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Background="Transparent" BorderThickness="0" Margin="4"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellTemplate>
+                        </controls:DataGridTemplateColumn>
+                        
+                        <controls:DataGridTemplateColumn Header="Gross Wt (g)" Width="*">
+                            <controls:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox AutomationProperties.AutomationId="WeightInput" Text="{Binding WeightInputText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Background="Transparent" BorderThickness="0" Margin="4"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellTemplate>
+                        </controls:DataGridTemplateColumn>
+                        
+                        <controls:DataGridTemplateColumn Header="Purity %" Width="*">
+                            <controls:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox AutomationProperties.AutomationId="PurityInput" Text="{Binding PurityInputText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Background="Transparent" BorderThickness="0" Margin="4"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellTemplate>
+                        </controls:DataGridTemplateColumn>
+                        
+                        <controls:DataGridTextColumn Header="Fine Wt (g)" Binding="{Binding FineWeightGrams, Converter={StaticResource NumericConverter}}" Width="*" IsReadOnly="True"/>
+                        <controls:DataGridTextColumn Header="Spot / g" Binding="{Binding LiveSpotPricePerGram, Converter={StaticResource NumericConverter}}" Width="*" IsReadOnly="True"/>
+                        
+                        <controls:DataGridTemplateColumn Header="Margin %" Width="*">
+                            <controls:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding DealerMarginValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource NumericConverter}}" Background="Transparent" BorderThickness="0" Margin="4"/>
+                                </DataTemplate>
+                            </controls:DataGridTemplateColumn.CellTemplate>
+                        </controls:DataGridTemplateColumn>
+                        
                         <controls:DataGridTextColumn Header="Final Price" Binding="{Binding FinalFiatPrice}" Width="*" IsReadOnly="True"/>
                         <controls:DataGridTemplateColumn Header="Delete" Width="80">
                             <controls:DataGridTemplateColumn.CellTemplate>
@@ -140,7 +176,7 @@
                     </Grid.ColumnDefinitions>
                     
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <Button x:Name="AddRowBtn" Content="Add Custom Item" Command="{x:Bind ViewModel.AddRowCommand}"/>
+                        <Button x:Name="AddRowBtn" AutomationProperties.AutomationId="AddRowBtn" Content="Add Custom Item" Command="{x:Bind ViewModel.AddRowCommand}"/>
                         <ComboBox x:Name="CatalogCombo" PlaceholderText="Select Catalog Item..." Width="200" DisplayMemberPath="Name" ItemsSource="{x:Bind ViewModel.CatalogItems, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedCatalogItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <Button x:Name="AddCatalogItemBtn" Content="Add from Catalog" Command="{x:Bind ViewModel.AddCatalogItemCommand}"/>
                     </StackPanel>
@@ -160,7 +196,7 @@
                             <TextBlock x:Name="SettlementTotalText" Text="{x:Bind ViewModel.SettlementTotalText, Mode=OneWay}" FontSize="20" FontWeight="Bold" Foreground="Blue" VerticalAlignment="Center"/>
                         </StackPanel>
                         
-                        <Button x:Name="LockQuoteBtn" Content="Lock &amp; Print Quote" Style="{StaticResource AccentButtonStyle}" Click="LockQuoteBtn_Click"/>
+                        <Button x:Name="LockQuoteBtn" AutomationProperties.AutomationId="LockQuoteBtn" Content="Lock &amp; Print Quote" Style="{StaticResource AccentButtonStyle}" Click="LockQuoteBtn_Click" IsEnabled="{x:Bind ViewModel.IsQuoteActive, Mode=OneWay}"/>
                     </StackPanel>
                 </Grid>
             </Border>

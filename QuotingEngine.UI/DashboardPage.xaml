@@ -80,9 +80,14 @@
                                 <TextBlock Grid.Column="2" Text="{Binding CreatedAtUtc}"/>
                                 <TextBlock Grid.Column="3" Text="{Binding Status}"/>
                                 <TextBlock Grid.Column="4" Text="{Binding SettlementTotal}"/>
-                                <Button Grid.Column="5" Background="Transparent" BorderThickness="0" Click="DeleteQuoteBtn_Click" HorizontalAlignment="Right" Padding="4">
-                                    <SymbolIcon Symbol="Delete" Foreground="Red"/>
-                                </Button>
+                                <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="4">
+                                    <Button Background="Transparent" BorderThickness="0" Click="EditQuoteBtn_Click" Padding="4" ToolTipService.ToolTip="Edit">
+                                        <SymbolIcon Symbol="Edit" Foreground="Blue"/>
+                                    </Button>
+                                    <Button Background="Transparent" BorderThickness="0" Click="DeleteQuoteBtn_Click" Padding="4" ToolTipService.ToolTip="Delete">
+                                        <SymbolIcon Symbol="Delete" Foreground="Red"/>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>

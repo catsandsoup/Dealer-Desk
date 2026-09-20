@@ -160,4 +160,23 @@ public sealed partial class DashboardPage : Page
             }
         }
     }
+
+    private void EditQuoteBtn_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.Controls.Button btn && btn.DataContext is Quote quote)
+        {
+            var viewModel = QuotingEngine_UI.App.Host?.Services.GetService<QuotingEngine.UI.ViewModels.MainWindowViewModel>();
+            if (viewModel != null)
+            {
+                viewModel.LoadQuote(quote);
+                
+                // Navigate to QuotesPage (assuming the shell is a NavigationView in ShellWindow)
+                var shellWindow = QuotingEngine_UI.App.CurrentWindow as QuotingEngine.UI.ShellWindow;
+                if (shellWindow != null)
+                {
+                    shellWindow.NavigateToQuotes();
+                }
+            }
+        }
+    }
 }

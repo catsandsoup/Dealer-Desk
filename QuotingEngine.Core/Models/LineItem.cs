@@ -121,7 +121,6 @@ public class LineItem : INotifyPropertyChanged
             {
                 GrossWeightGrams = parsed;
             }
-            OnPropertyChanged();
         }
     }
 
@@ -140,7 +139,6 @@ public class LineItem : INotifyPropertyChanged
                 if (parsed > 1m) parsed = parsed / 100m;
                 PurityPercentage = parsed;
             }
-            OnPropertyChanged();
         }
     }
 

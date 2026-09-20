@@ -76,7 +76,7 @@ public partial class App : Application
                 services.AddSingleton<SerialPortReader>(sp => new SerialPortReader("COM1", 9600));
 
                 // ViewModels
-                services.AddTransient<QuotingEngine.UI.ViewModels.MainWindowViewModel>();
+                services.AddSingleton<QuotingEngine.UI.ViewModels.MainWindowViewModel>();
                 
                 // Windows (Transient so they can be recreated)
                 services.AddTransient<ShellWindow>();

@@ -31,36 +31,43 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentSpotPriceText))]
-    private decimal _currentSpotPrice = 82.50m;
+    public partial decimal CurrentSpotPrice { get; set; } = 82.50m;
 
     public string CurrentSpotPriceText => $"${CurrentSpotPrice:F2}";
 
     [ObservableProperty]
-    private bool _isSpotFrozen = false;
+    public partial bool IsSpotFrozen { get; set; } = false;
 
     [ObservableProperty]
-    private string _customerName = "";
+    public partial string CustomerName { get; set; } = "";
+
+    partial void OnCustomerNameChanged(string value)
+    {
+        NotifyCommandStates();
+    }
 
     [ObservableProperty]
-    private string _idDocument = "";
+    public partial string IdDocument { get; set; } = "";
 
     [ObservableProperty]
-    private string _idNumber = "";
+    public partial string IdNumber { get; set; } = "";
     
     [ObservableProperty]
-    private CatalogItem? _selectedCatalogItem;
+    public partial CatalogItem? SelectedCatalogItem { get; set; }
 
     [ObservableProperty]
-    private string _statusText = "LIVE";
+    public partial string StatusText { get; set; } = "LIVE";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SettlementTotalText))]
-    private decimal _settlementTotal;
+    public partial decimal SettlementTotal { get; set; }
 
     public string SettlementTotalText => $"${SettlementTotal:F2}";
 
     // A flag to determine if the spot price is stale
     public bool IsStale => _spotClient?.IsStale ?? false;
+    
+    public bool IsQuoteActive => LineItems.Count > 0 || !string.IsNullOrEmpty(CustomerName);
 
     public MainWindowViewModel(
         AppDbContext dbContext,
@@ -92,6 +99,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                     item.PropertyChanged -= Item_PropertyChanged;
                     
             UpdateSettlementTotal();
+            NotifyCommandStates();
         };
 
         // Wire up services
@@ -240,7 +248,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         StatusText = IsSpotFrozen ? "FROZEN" : "LIVE";
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanUndo))]
     private void Undo()
     {
         if (_undoStack.Count > 0)
@@ -251,8 +259,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             {
                 LineItems.Add(item);
             }
+            NotifyCommandStates();
         }
     }
+
+    private bool CanUndo() => _undoStack.Count > 0;
 
     [RelayCommand]
     private void NewOrder()
@@ -264,14 +275,46 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         IdNumber = "";
         IsSpotFrozen = false;
         StatusText = "LIVE";
+        NotifyCommandStates();
     }
 
-    [RelayCommand]
+    public void LoadQuote(Quote quote)
+    {
+        SaveUndoState();
+        LineItems.Clear();
+        
+        CustomerName = quote.CustomerName;
+        IdDocument = quote.CustomerIdDocument ?? "";
+        IdNumber = quote.CustomerIdNumber ?? "";
+        
+        // Load items
+        foreach (var item in quote.Items)
+        {
+            LineItems.Add(item);
+        }
+        
+        // Depending on requirements, we could leave spot frozen at what it was, or let it resume.
+        // For editing, let's assume we use live prices unless manually frozen again.
+        IsSpotFrozen = false;
+        StatusText = "EDITING - LIVE";
+        NotifyCommandStates();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDeleteDraft))]
     private void DeleteDraft()
     {
         // For a draft, it's essentially the same as NewOrder (clearing the screen).
         // If we had saved it to DB, we'd delete it from DB here.
         NewOrder();
+    }
+
+    private bool CanDeleteDraft() => LineItems.Count > 0 || !string.IsNullOrEmpty(CustomerName);
+
+    private void NotifyCommandStates()
+    {
+        UndoCommand.NotifyCanExecuteChanged();
+        DeleteDraftCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(IsQuoteActive));
     }
 
     private void SaveUndoState()
@@ -289,6 +332,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         }).ToList();
         
         _undoStack.Push(snapshot);
+        NotifyCommandStates();
     }
 
     public void Dispose()

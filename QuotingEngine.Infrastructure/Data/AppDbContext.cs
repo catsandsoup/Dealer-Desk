@@ -11,18 +11,25 @@ public class AppDbContext : DbContext
     public DbSet<LineItem> LineItems { get; set; }
     public DbSet<CatalogItem> CatalogItems { get; set; }
     
-    private readonly string _dbPath;
+    private readonly string? _dbPath;
     
     public AppDbContext(string dbPath = "quoting_engine.db")
     {
         _dbPath = dbPath;
     }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Using SQLite for local offline POS usage (zero-config, self-contained)
-        var connectionString = $"Data Source={_dbPath}";
-        optionsBuilder.UseSqlite(connectionString);
+        if (!optionsBuilder.IsConfigured && _dbPath != null)
+        {
+            // Using SQLite for local offline POS usage (zero-config, self-contained)
+            var connectionString = $"Data Source={_dbPath}";
+            optionsBuilder.UseSqlite(connectionString);
+        }
     }
 
     public override int SaveChanges()

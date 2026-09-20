@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI;
 using QuotingEngine.Core.Models;
 using QuotingEngine.Infrastructure.Documents;
@@ -30,11 +31,32 @@ public sealed partial class QuotesPage : Page
         this.InitializeComponent();
         this.DataContext = this;
         
-        // AppTitleBarText.Text = _config.CompanyName;
+        this.NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Required;
 
         // Setup keyboard hook for F2 at page level
         this.Loaded += (s, e) => {
             this.Focus(FocusState.Programmatic);
+            
+            // Force DataGrid UIAutomation tree to detach and reattach completely
+            WorksheetGrid.Visibility = Visibility.Collapsed;
+            WorksheetGrid.UpdateLayout();
+            WorksheetGrid.Visibility = Visibility.Visible;
+            WorksheetGrid.UpdateLayout();
+            
+            // Force DataGrid to realize items by triggering CollectionChanged asynchronously
+            var items = ViewModel.LineItems.ToList();
+            if (items.Count > 0)
+            {
+                ViewModel.LineItems.Clear();
+                _ = DispatcherQueue.TryEnqueue(async () =>
+                {
+                    await System.Threading.Tasks.Task.Delay(50); // Let UI process empty grid
+                    foreach (var item in items)
+                    {
+                        ViewModel.LineItems.Add(item);
+                    }
+                });
+            }
         };
         this.Unloaded += QuotesPage_Unloaded;
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -50,8 +72,9 @@ public sealed partial class QuotesPage : Page
 
     private void QuotesPage_Unloaded(object sender, RoutedEventArgs args)
     {
+        // Mitigate WinUI 3 infinite layout cycle bug on cached pages with DataGrid star sizing
+        WorksheetGrid.Visibility = Visibility.Collapsed;
         ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
-        ViewModel.Dispose();
         _tickerWindow?.Close();
     }
 

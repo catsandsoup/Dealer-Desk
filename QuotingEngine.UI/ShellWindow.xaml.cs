@@ -64,4 +64,16 @@ public sealed partial class ShellWindow : Window
             }
         }
     }
+
+    public void NavigateToQuotes()
+    {
+        foreach (var item in NavView.MenuItems)
+        {
+            if (item is NavigationViewItem navItem && navItem.Tag.ToString() == "QuotesPage")
+            {
+                NavView.SelectedItem = navItem;
+                break;
+            }
+        }
+    }
 }
